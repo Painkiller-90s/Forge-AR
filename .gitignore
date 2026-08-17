@@ -1,0 +1,56 @@
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Variables de entorno frontend
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# Backend 
+
+backend/.venv/
+backend/venv/
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Cachés de Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Cobertura
+.coverage
+htmlcov/
+
+# Variables de entorno backend
+backend/.env
+backend/.env.local
+
+
+# Variables de entorno generales
+
+.env
+.env.local
+
+# Permitir archivos de ejemplo
+!.env.example
+!**/.env.example
+
+
+# Editor / Sistema
+
+.vscode/
+.DS_Store
+Thumbs.db
