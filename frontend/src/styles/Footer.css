@@ -1,0 +1,72 @@
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+  max-width: 1300px;
+
+  margin: 0 auto;
+  padding: 30px 45px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  border-top: 1px solid #181a1d;
+
+  color: #62666c;
+
+  font-size: 12px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  color: #aaaeb3;
+
+  font-family: Georgia, serif;
+
+  letter-spacing: 1px;
+
+  white-space: nowrap;
+}
+
+.footer-brand .brand-symbol {
+  color: var(--red-light);
+}
+
+.footer p {
+  margin: 0;
+
+  color: #62666c;
+
+  text-align: right;
+
+  line-height: 1.5;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 600px) {
+  .footer {
+    padding: 25px 20px;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    text-align: center;
+  }
+
+  .footer p {
+    text-align: center;
+  }
+}

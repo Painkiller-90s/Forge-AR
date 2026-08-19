@@ -1,0 +1,141 @@
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  max-width: 1350px;
+  height: 80px;
+
+  margin: 0 auto;
+  padding: 0 45px;
+
+  display: flex;
+  align-items: center;
+
+  border-bottom: 1px solid #17191c;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: var(--text);
+
+  font-family: Georgia, serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+
+  white-space: nowrap;
+}
+
+.brand-symbol {
+  color: var(--red-light);
+
+  font-family: monospace;
+  font-weight: bold;
+
+  letter-spacing: -5px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+
+  gap: 40px;
+
+  margin: 0 auto;
+}
+
+.nav-links a {
+  position: relative;
+
+  color: #a8abb0;
+
+  font-size: 14px;
+
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: var(--text);
+}
+
+/* Línea inferior al pasar el mouse */
+.nav-links a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -8px;
+
+  width: 0;
+  height: 1px;
+
+  background: var(--red-light);
+
+  transition: width 0.2s ease;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.login-button {
+  padding: 11px 20px;
+
+  background: transparent;
+
+  border: 1px solid #303338;
+  border-radius: 4px;
+
+  color: #d5d6d8;
+
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.login-button:hover {
+  color: white;
+
+  border-color: #55595f;
+
+  background: rgba(255, 255, 255, 0.03);
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .nav-links {
+    display: none;
+  }
+
+  .login-button {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    height: 70px;
+
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .brand {
+    font-size: 17px;
+  }
+
+  .login-button {
+    padding: 9px 14px;
+
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,90 @@
+:root {
+  --background: #08090b;
+  --surface: #101215;
+
+  --border: #24272b;
+
+  --text: #f1f1f1;
+  --text-secondary: #92959b;
+
+  --red: #b7352d;
+  --red-light: #d3483e;
+}
+
+
+/* GENERAL */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  background: var(--background);
+  color: var(--text);
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+.primary-button,
+.secondary-button {
+  height: 52px;
+  padding: 0 24px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  border-radius: 4px;
+
+  transition: 0.2s;
+}
+
+.primary-button {
+  border: 1px solid #c24037;
+
+  background: linear-gradient(
+    135deg,
+    #9e2924,
+    #bc3931
+  );
+
+  color: white;
+}
+
+.primary-button:hover {
+  background: #c43d34;
+}
+
+.secondary-button {
+  border: 1px solid #34373c;
+
+  background: transparent;
+
+  color: #d1d2d5;
+}
+
+.secondary-button:hover {
+  border-color: #60646a;
+}
