@@ -8,7 +8,7 @@
 
   background:
     radial-gradient(
-      circle at 65% 45%,
+      circle at 65% 35%,
       rgba(160, 35, 30, 0.07),
       transparent 30%
     ),
@@ -46,6 +46,11 @@
 .hero-content {
   max-width: 720px;
 }
+
+
+/* =========================
+   HERO TEXTO
+========================= */
 
 .eyebrow {
   color: var(--red-light);
@@ -222,9 +227,6 @@
   grid-template-columns: repeat(3, 1fr);
 
   gap: 0;
-
-  /* Sin línea arriba */
-  border-top: none;
 }
 
 .feature {
@@ -235,27 +237,17 @@
   padding: 0 clamp(30px, 3vw, 55px);
 }
 
-
-/* Primer bloque sin padding extra a la izquierda */
-
 .feature:first-child {
   padding-left: 0;
 }
-
-
-/* Último bloque sin padding extra a la derecha */
 
 .feature:last-child {
   padding-right: 0;
 }
 
-
-/* Líneas divisorias entre bloques */
-
 .feature + .feature {
   border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 
 .feature svg {
   min-width: 25px;
@@ -281,10 +273,281 @@
 
 
 /* =========================
-   RESPONSIVE HOME
+   FLUJO DE TRABAJO
+========================= */
+
+.platform-process {
+  width: 100%;
+
+  padding:
+    110px
+    clamp(30px, 5vw, 90px);
+}
+
+.platform-section-heading {
+  max-width: 700px;
+
+  margin-bottom: 60px;
+}
+
+.platform-section-heading > span {
+  color: var(--red-light);
+
+  font-size: 11px;
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+}
+
+.platform-section-heading h2 {
+  margin: 15px 0 20px;
+
+  font-size: clamp(34px, 4vw, 50px);
+
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+}
+
+.platform-section-heading p {
+  margin: 0;
+
+  max-width: 650px;
+
+  color: var(--text-secondary);
+
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   TARJETAS DEL PROCESO
+========================= */
+
+.process-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.process-card {
+  min-height: 300px;
+
+  padding: 40px 35px;
+
+  border-right: 1px solid var(--border);
+}
+
+.process-card:last-child {
+  border-right: none;
+}
+
+.process-number {
+  color: #55595e;
+
+  font-family: monospace;
+
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.process-card svg {
+  margin-top: 35px;
+
+  color: var(--red-light);
+}
+
+.process-card h3 {
+  margin: 18px 0 12px;
+
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.process-card p {
+  margin: 0;
+
+  color: var(--text-secondary);
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   INFORMACIÓN CENTRALIZADA
+========================= */
+
+.platform-info {
+  width: 100%;
+
+  padding:
+    110px
+    clamp(30px, 5vw, 90px);
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(350px, 0.7fr);
+
+  align-items: center;
+
+  gap: clamp(70px, 10vw, 150px);
+}
+
+.platform-info-content {
+  max-width: 680px;
+}
+
+.platform-eyebrow {
+  color: var(--red-light);
+
+  font-size: 11px;
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+}
+
+.platform-info-content h2 {
+  margin: 18px 0 20px;
+
+  font-size: clamp(34px, 4vw, 52px);
+
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+}
+
+.platform-info-content > p {
+  margin: 0;
+
+  color: var(--text-secondary);
+
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   LISTA DE INFORMACIÓN
+========================= */
+
+.platform-info-content ul {
+  margin: 35px 0 0;
+
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+
+  list-style: none;
+}
+
+.platform-info-content li {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  color: #b8bbc0;
+
+  font-size: 14px;
+}
+
+.platform-info-content li svg {
+  flex-shrink: 0;
+
+  color: var(--red-light);
+}
+
+
+/* =========================
+   PANEL DE POSTULACIÓN
+========================= */
+
+.platform-data-panel {
+  width: 100%;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 22, 25, 0.95),
+      rgba(10, 11, 13, 0.95)
+    );
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.35);
+
+  overflow: hidden;
+}
+
+.data-panel-header {
+  height: 58px;
+
+  padding: 0 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid var(--border);
+
+  color: #777b81;
+
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+
+.data-item {
+  min-height: 65px;
+
+  padding: 0 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  font-size: 13px;
+}
+
+.data-item:last-child {
+  border-bottom: none;
+}
+
+.data-item span {
+  color: #777b81;
+}
+
+.data-item strong {
+  color: #d3d5d8;
+
+  font-weight: 500;
+}
+
+.data-item .risk-medium {
+  color: var(--red-light);
+}
+
+
+/* =========================
+   RESPONSIVE - TABLET
 ========================= */
 
 @media (max-width: 900px) {
+
+  /* HERO */
 
   .hero {
     grid-template-columns: 1fr;
@@ -292,9 +555,17 @@
     gap: 50px;
   }
 
+  .hero-content {
+    max-width: 750px;
+  }
+
   .visual {
+    max-width: 700px;
     height: 300px;
   }
+
+
+  /* FEATURES */
 
   .features {
     grid-template-columns: 1fr;
@@ -314,33 +585,165 @@
     padding-bottom: 0;
   }
 
-  /* En móvil quitamos divisores verticales */
-
   .feature + .feature {
     border-left: none;
 
     border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
+
+
+  /* PROCESO */
+
+  .process-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .process-card:nth-child(2n) {
+    border-right: none;
+  }
+
+  .process-card:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--border);
+  }
+
+
+  /* INFORMACIÓN */
+
+  .platform-info {
+    grid-template-columns: 1fr;
+
+    gap: 60px;
+  }
+
+  .platform-data-panel {
+    max-width: 650px;
+  }
 }
 
+
+/* =========================
+   RESPONSIVE - MÓVIL
+========================= */
+
+@media (max-width: 700px) {
+
+  .platform-process,
+  .platform-info {
+    padding-top: 75px;
+    padding-bottom: 75px;
+  }
+
+
+  /* PROCESO */
+
+  .process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .process-card {
+    min-height: auto;
+
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .process-card:nth-child(2n) {
+    border-right: none;
+  }
+
+  .process-card:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .process-card:last-child {
+    border-bottom: none;
+  }
+}
+
+
+/* =========================
+   RESPONSIVE - MÓVIL PEQUEÑO
+========================= */
 
 @media (max-width: 600px) {
 
   .hero,
-  .features {
+  .features,
+  .platform-process,
+  .platform-info {
     padding-left: 20px;
     padding-right: 20px;
   }
 
+
+  /* HERO */
+
   .hero {
     padding-top: 60px;
+    padding-bottom: 60px;
+
+    min-height: auto;
   }
 
   .hero h1 {
-    font-size: 52px;
+    font-size: 48px;
+
+    letter-spacing: -2px;
+  }
+
+  .hero-description {
+    font-size: 16px;
   }
 
   .hero-actions {
     flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  /* VISUAL */
+
+  .visual {
+    height: 270px;
+  }
+
+  .visual-wave {
+    width: 85%;
+  }
+
+  .visual-center p {
+    letter-spacing: 2px;
+  }
+
+
+  /* PROCESO */
+
+  .platform-section-heading {
+    margin-bottom: 40px;
+  }
+
+  .process-card {
+    padding: 35px 25px;
+  }
+
+
+  /* INFORMACIÓN */
+
+  .platform-info {
+    gap: 45px;
+  }
+
+  .platform-info-content h2 {
+    font-size: 36px;
+  }
+
+  .platform-section-heading h2 {
+    font-size: 36px;
+  }
+
+  .data-item {
+    padding-left: 18px;
+    padding-right: 18px;
   }
 }

@@ -4,8 +4,7 @@ import Navbar from "./components/NavBar";
 import Footer from "./components/Footer";
 
 import HomePage from "./pages/HomePage";
-import PlataformaPage from "./pages/PlataformaPage";
-import FuncionesPage from "./pages/FuncionesPage";
+import ComoFuncionaPage from "./pages/ComoFuncionaPage";
 import LoginPage from "./pages/LoginPage";
 
 function App() {
@@ -15,8 +14,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/plataforma" element={<PlataformaPage />} />
-        <Route path="/funciones" element={<FuncionesPage />} />
+        <Route path="/Como funciona" element={<ComoFuncionaPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Routes>
 

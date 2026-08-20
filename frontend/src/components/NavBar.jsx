@@ -17,13 +17,9 @@ function Navbar() {
         <NavLink to="/" className={({ isActive }) => (isActive ? "active" : "")}>
           Inicio
         </NavLink>
-
-        <NavLink to="/plataforma" className={({ isActive }) => (isActive ? "active" : "")}>
-          Plataforma
-        </NavLink>
-
-        <NavLink to="/funciones" className={({ isActive }) => (isActive ? "active" : "")}>
-          Funciones
+        
+        <NavLink to="/Como funciona" className={({ isActive }) => (isActive ? "active" : "")}>
+          Cómo funciona
         </NavLink>
 
       </nav>
