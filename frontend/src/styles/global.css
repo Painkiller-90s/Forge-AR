@@ -18,12 +18,21 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
 
   background: var(--background);
   color: var(--text);
@@ -46,6 +55,10 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+
+/* BOTONES GLOBALES */
+
 .primary-button,
 .secondary-button {
   height: 52px;

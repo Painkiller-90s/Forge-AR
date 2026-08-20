@@ -3,11 +3,11 @@
 ========================= */
 
 .navbar {
-  max-width: 1350px;
+  width: 100%;
   height: 80px;
 
-  margin: 0 auto;
-  padding: 0 45px;
+  margin: 0;
+  padding: 0 clamp(30px, 5vw, 90px);
 
   display: flex;
   align-items: center;
@@ -55,6 +55,10 @@
   font-size: 14px;
 
   transition: color 0.2s ease;
+}
+
+.nav-links a.active {
+  color: var(--red-light);
 }
 
 .nav-links a:hover {

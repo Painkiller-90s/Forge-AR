@@ -3,10 +3,13 @@
 ========================= */
 
 .footer {
-  max-width: 1300px;
+  width: 100%;
 
-  margin: 0 auto;
-  padding: 30px 45px;
+  margin: 0;
+
+  padding:
+    30px
+    clamp(30px, 5vw, 90px);
 
   display: flex;
   align-items: center;

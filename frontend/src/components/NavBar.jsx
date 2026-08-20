@@ -1,23 +1,35 @@
+import { NavLink } from "react-router-dom";
 import "../styles/Navbar.css";
+
 
 function Navbar() {
   return (
     <header className="navbar">
 
-      <a className="brand" href="/">
+      <NavLink className="brand" to="/">
         <span className="brand-symbol">||||</span>
         <span>FORGE A&R</span>
-      </a>
+      </NavLink>
 
       <nav className="nav-links">
-        <a href="/">Inicio</a>
-        <a href="#plataforma">Plataforma</a>
-        <a href="#funciones">Funciones</a>
+
+        <NavLink to="/" className={({ isActive }) => (isActive ? "active" : "")}>
+          Inicio
+        </NavLink>
+
+        <NavLink to="/plataforma" className={({ isActive }) => (isActive ? "active" : "")}>
+          Plataforma
+        </NavLink>
+
+        <NavLink to="/funciones" className={({ isActive }) => (isActive ? "active" : "")}>
+          Funciones
+        </NavLink>
+
       </nav>
 
-      <button className="login-button">
+      <NavLink className="login-button" to="/login">
         Iniciar sesión
-      </button>
+      </NavLink>
 
     </header>
   );
