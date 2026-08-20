@@ -221,16 +221,41 @@
 
   grid-template-columns: repeat(3, 1fr);
 
-  gap: clamp(40px, 6vw, 100px);
+  gap: 0;
 
-  border-top: 1px solid #181a1d;
+  /* Sin línea arriba */
+  border-top: none;
 }
 
 .feature {
   display: flex;
 
   gap: 18px;
+
+  padding: 0 clamp(30px, 3vw, 55px);
 }
+
+
+/* Primer bloque sin padding extra a la izquierda */
+
+.feature:first-child {
+  padding-left: 0;
+}
+
+
+/* Último bloque sin padding extra a la derecha */
+
+.feature:last-child {
+  padding-right: 0;
+}
+
+
+/* Líneas divisorias entre bloques */
+
+.feature + .feature {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 
 .feature svg {
   min-width: 25px;
@@ -274,7 +299,27 @@
   .features {
     grid-template-columns: 1fr;
 
-    gap: 35px;
+    gap: 0;
+  }
+
+  .feature {
+    padding: 30px 0;
+  }
+
+  .feature:first-child {
+    padding-top: 0;
+  }
+
+  .feature:last-child {
+    padding-bottom: 0;
+  }
+
+  /* En móvil quitamos divisores verticales */
+
+  .feature + .feature {
+    border-left: none;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
 

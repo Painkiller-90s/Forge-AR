@@ -1,11 +1,17 @@
 import "../styles/Footer.css";
+import logo from "../assets/forge-ar.svg";
 
 function Footer() {
   return (
     <footer className="footer">
 
       <div className="footer-brand">
-        <span className="brand-symbol">||||</span>
+        <img
+          src={logo}
+          alt="Forge A&R"
+          className="footer-brand-logo"
+        />
+
         <span>FORGE A&R</span>
       </div>
 

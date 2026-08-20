@@ -17,12 +17,15 @@
 
   gap: 30px;
 
-  border-top: 1px solid #181a1d;
-
   color: #62666c;
 
   font-size: 12px;
 }
+
+
+/* =========================
+   MARCA / LOGO
+========================= */
 
 .footer-brand {
   display: flex;
@@ -39,9 +42,23 @@
   white-space: nowrap;
 }
 
-.footer-brand .brand-symbol {
-  color: var(--red-light);
+.footer-brand-logo {
+  width: 32px;
+  height: 32px;
+
+  max-width: 32px;
+  max-height: 32px;
+
+  object-fit: contain;
+
+  display: block;
+  flex-shrink: 0;
 }
+
+
+/* =========================
+   TEXTO
+========================= */
 
 .footer p {
   margin: 0;
@@ -59,6 +76,7 @@
 ========================= */
 
 @media (max-width: 600px) {
+
   .footer {
     padding: 25px 20px;
 
@@ -71,5 +89,13 @@
 
   .footer p {
     text-align: center;
+  }
+
+  .footer-brand-logo {
+    width: 28px;
+    height: 28px;
+
+    max-width: 28px;
+    max-height: 28px;
   }
 }

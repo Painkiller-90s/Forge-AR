@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
-import "../styles/Navbar.css";
+import "../styles/NavBar.css";
+import logo from "../assets/forge-ar.svg";
 
 
 function Navbar() {
@@ -7,7 +8,7 @@ function Navbar() {
     <header className="navbar">
 
       <NavLink className="brand" to="/">
-        <span className="brand-symbol">||||</span>
+        <img src={logo} alt="Forge A&R" className="brand-logo" />
         <span>FORGE A&R</span>
       </NavLink>
 

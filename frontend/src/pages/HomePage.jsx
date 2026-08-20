@@ -5,17 +5,11 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import "../styles/global.css";
 import "../styles/HomePage.css";
-import Navbar from "../components/NavBar";
-import Footer from "../components/Footer";
 
 function HomePage() {
   return (
     <div className="home-page">
-
-      <Navbar />
-
 
       {/* PORTADA */}
       <main className="hero" id="inicio">
@@ -52,12 +46,12 @@ function HomePage() {
 
         </div>
 
-
         {/* DETALLE VISUAL */}
         <div className="visual">
 
           <div className="visual-top">
             <span>FORGE A&R</span>
+
             <span className="status">
               SISTEMA A&R
             </span>
@@ -97,7 +91,6 @@ function HomePage() {
 
       </main>
 
-
       {/* FUNCIONES */}
       <section className="features" id="funciones">
 
@@ -107,6 +100,7 @@ function HomePage() {
 
           <div>
             <h3>Validación de demos</h3>
+
             <p>
               Revisa aspectos técnicos del audio y centraliza
               el material enviado por los artistas.
@@ -115,13 +109,13 @@ function HomePage() {
 
         </div>
 
-
         <div className="feature">
 
           <BarChart3 size={25} />
 
           <div>
             <h3>Métricas relevantes</h3>
+
             <p>
               Reúne información externa que ayude a comprender
               el alcance y evolución de cada proyecto.
@@ -130,13 +124,13 @@ function HomePage() {
 
         </div>
 
-
         <div className="feature">
 
           <ShieldCheck size={25} />
 
           <div>
             <h3>Análisis de riesgo</h3>
+
             <p>
               Entrega información de apoyo para tomar decisiones
               A&R con mayor trazabilidad.
@@ -146,10 +140,6 @@ function HomePage() {
         </div>
 
       </section>
-
-
-      {/* FOOTER */}
-      <Footer />
 
     </div>
   );
