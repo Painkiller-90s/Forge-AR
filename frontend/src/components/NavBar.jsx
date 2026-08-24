@@ -18,14 +18,14 @@ function Navbar() {
           Inicio
         </NavLink>
         
-        <NavLink to="/Como funciona" className={({ isActive }) => (isActive ? "active" : "")}>
+        <NavLink to="/como-funciona" className={({ isActive }) => (isActive ? "active" : "")}>
           Cómo funciona
         </NavLink>
 
       </nav>
 
-      <NavLink className="login-button" to="/login">
-        Iniciar sesión
+      <NavLink className="login-button" to="/acceso">
+        Acceso A&R
       </NavLink>
 
     </header>

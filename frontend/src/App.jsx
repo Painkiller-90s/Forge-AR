@@ -5,7 +5,7 @@ import Footer from "./components/Footer";
 
 import HomePage from "./pages/HomePage";
 import ComoFuncionaPage from "./pages/ComoFuncionaPage";
-import LoginPage from "./pages/LoginPage";
+import AccesoAR from "./pages/AccesoAR";
 
 function App() {
   return (
@@ -14,8 +14,8 @@ function App() {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/Como funciona" element={<ComoFuncionaPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/como-funciona" element={<ComoFuncionaPage />} />
+        <Route path="/acceso" element={<AccesoAR />} />
       </Routes>
 
       <Footer />

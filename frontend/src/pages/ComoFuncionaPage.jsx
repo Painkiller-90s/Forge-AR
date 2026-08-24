@@ -428,7 +428,7 @@ function ComoFuncionaPage() {
         </div>
 
         <Link
-          to="/login"
+          to="/acceso"
           className="primary-button"
         >
           Iniciar sesión

@@ -6,6 +6,7 @@ import {
   Upload,
   CheckCircle2,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import "../styles/HomePage.css";
 
@@ -34,15 +35,14 @@ function HomePage() {
           </p>
 
           <div className="hero-actions">
-
-            <button className="primary-button">
+            <Link to="/como-funciona" className="primary-button">
               Conocer la plataforma
               <ArrowRight size={18} />
-            </button>
+            </Link>
 
-            <button className="secondary-button">
-              Iniciar sesión
-            </button>
+            <Link to="/acceso" className="secondary-button">
+              Acceso A&R
+            </Link>
 
           </div>
 

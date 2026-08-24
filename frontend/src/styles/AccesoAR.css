@@ -1,0 +1,593 @@
+/* =========================
+   ACCESO A&R
+========================= */
+
+.acceso-ar-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    clamp(50px, 7vh, 90px)
+    clamp(24px, 5vw, 80px);
+
+  background:
+    radial-gradient(
+      circle at 20% 45%,
+      rgba(183, 53, 45, 0.09),
+      transparent 32%
+    ),
+    var(--background);
+}
+
+
+/* =========================
+   CONTENEDOR
+========================= */
+
+.acceso-ar-container {
+  width: 100%;
+  max-width: 1180px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(380px, 460px);
+
+  gap: clamp(60px, 9vw, 130px);
+
+  align-items: center;
+}
+
+
+/* =========================
+   INFORMACIÓN IZQUIERDA
+========================= */
+
+.acceso-ar-info {
+  max-width: 620px;
+}
+
+.acceso-ar-back {
+  width: fit-content;
+
+  margin-bottom: 70px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--text-secondary);
+
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.acceso-ar-back:hover {
+  color: var(--text);
+
+  transform: translateX(-3px);
+}
+
+
+.acceso-ar-eyebrow {
+  display: block;
+
+  margin-bottom: 20px;
+
+  color: var(--red-light);
+
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+
+.acceso-ar-info h1 {
+  max-width: 600px;
+
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 600;
+
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+
+.acceso-ar-info h1 span {
+  color: var(--red);
+}
+
+
+.acceso-ar-description {
+  max-width: 550px;
+
+  margin: 30px 0 0;
+
+  color: var(--text-secondary);
+
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+
+/* =========================
+   MENSAJE DE SEGURIDAD
+========================= */
+
+.acceso-ar-security {
+  max-width: 520px;
+
+  margin-top: 45px;
+  padding-top: 26px;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  border-top: 1px solid var(--border);
+}
+
+
+.acceso-ar-security-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(183, 53, 45, 0.35);
+  border-radius: 4px;
+
+  background: rgba(183, 53, 45, 0.08);
+
+  color: var(--red-light);
+}
+
+
+.acceso-ar-security-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+
+.acceso-ar-security-text strong {
+  color: var(--text);
+
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+
+.acceso-ar-security-text span {
+  color: var(--text-secondary);
+
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   CARD LOGIN
+========================= */
+
+.acceso-ar-card {
+  width: 100%;
+
+  padding: clamp(30px, 4vw, 46px);
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.018),
+      transparent
+    ),
+    var(--surface);
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.32);
+}
+
+
+/* =========================
+   CABECERA CARD
+========================= */
+
+.acceso-ar-card-header {
+  margin-bottom: 34px;
+}
+
+
+.acceso-ar-lock {
+  width: 46px;
+  height: 46px;
+
+  margin-bottom: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(183, 53, 45, 0.35);
+  border-radius: 4px;
+
+  background: rgba(183, 53, 45, 0.08);
+
+  color: var(--red-light);
+}
+
+
+.acceso-ar-card-label {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: var(--red-light);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  letter-spacing: 0.16em;
+}
+
+
+.acceso-ar-card-header h2 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 1.8rem;
+  font-weight: 600;
+
+  letter-spacing: -0.035em;
+}
+
+
+.acceso-ar-card-header p {
+  margin: 10px 0 0;
+
+  color: var(--text-secondary);
+
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+
+/* =========================
+   FORMULARIO
+========================= */
+
+.acceso-ar-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 22px;
+}
+
+
+.acceso-ar-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+
+.acceso-ar-field label {
+  color: #c2c4c8;
+
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+
+/* =========================
+   INPUT
+========================= */
+
+.acceso-ar-input {
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 0 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  background: #0c0d0f;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.acceso-ar-input:focus-within {
+  border-color: var(--red);
+
+  background: #0a0b0d;
+
+  box-shadow:
+    0 0 0 3px rgba(183, 53, 45, 0.08);
+}
+
+
+.acceso-ar-input > svg {
+  flex-shrink: 0;
+
+  color: #666a70;
+
+  transition: color 0.2s ease;
+}
+
+
+.acceso-ar-input:focus-within > svg {
+  color: var(--red-light);
+}
+
+
+.acceso-ar-input input {
+  width: 100%;
+  height: 100%;
+
+  padding: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: var(--text);
+
+  font-size: 0.9rem;
+}
+
+
+.acceso-ar-input input::placeholder {
+  color: #5c6065;
+}
+
+
+/* =========================
+   CONTRASEÑA
+========================= */
+
+.acceso-ar-password-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+
+.acceso-ar-forgot {
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--text-secondary);
+
+  font-size: 0.75rem;
+
+  transition: color 0.2s ease;
+}
+
+
+.acceso-ar-forgot:hover {
+  color: var(--text);
+}
+
+
+.acceso-ar-password-toggle {
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 4px;
+
+  background: transparent;
+
+  color: #73777d;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.acceso-ar-password-toggle:hover {
+  color: var(--text);
+
+  background: rgba(255, 255, 255, 0.04);
+}
+
+
+/* =========================
+   RECORDAR SESIÓN
+========================= */
+
+.acceso-ar-remember {
+  width: fit-content;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: var(--text-secondary);
+
+  font-size: 0.78rem;
+
+  cursor: pointer;
+}
+
+
+.acceso-ar-remember input {
+  width: 15px;
+  height: 15px;
+
+  accent-color: var(--red);
+}
+
+
+/* =========================
+   BOTÓN LOGIN
+========================= */
+
+.acceso-ar-submit {
+  width: 100%;
+
+  margin-top: 3px;
+}
+
+
+/* =========================
+   FOOTER CARD
+========================= */
+
+.acceso-ar-card-footer {
+  margin-top: 30px;
+  padding-top: 21px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--text-secondary);
+
+  font-size: 0.7rem;
+
+  text-align: center;
+}
+
+
+.acceso-ar-card-footer svg {
+  flex-shrink: 0;
+
+  color: #777b80;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+  .acceso-ar-page {
+    align-items: flex-start;
+  }
+
+  .acceso-ar-container {
+    max-width: 540px;
+
+    grid-template-columns: 1fr;
+
+    gap: 55px;
+  }
+
+  .acceso-ar-info {
+    max-width: 100%;
+
+    text-align: center;
+  }
+
+  .acceso-ar-back {
+    margin-bottom: 45px;
+  }
+
+  .acceso-ar-info h1 {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .acceso-ar-description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .acceso-ar-security {
+    margin-left: auto;
+    margin-right: auto;
+
+    text-align: left;
+  }
+}
+
+
+@media (max-width: 520px) {
+
+  .acceso-ar-page {
+    padding:
+      35px
+      18px
+      60px;
+  }
+
+  .acceso-ar-container {
+    gap: 40px;
+  }
+
+  .acceso-ar-info h1 {
+    font-size: 2.7rem;
+  }
+
+  .acceso-ar-description {
+    font-size: 0.92rem;
+  }
+
+  .acceso-ar-card {
+    padding: 28px 22px;
+  }
+
+  .acceso-ar-password-header {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 6px;
+  }
+
+  .acceso-ar-card-footer {
+    align-items: flex-start;
+
+    text-align: left;
+  }
+}
