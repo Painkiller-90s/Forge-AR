@@ -1,0 +1,32 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+
+from app.config.database import (
+    connect_to_mongo,
+    close_mongo_connection
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await connect_to_mongo()
+
+    yield
+
+    await close_mongo_connection()
+
+
+app = FastAPI(
+    title="Forge A&R API",
+    description="Backend de la plataforma Forge A&R",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Forge A&R API funcionando"
+    }
