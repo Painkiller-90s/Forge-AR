@@ -1,23 +1,11 @@
+import "../styles/AccesoAR.css";
+
 function AccesoAR() {
   return (
     <main className="acceso-ar-page">
       <section className="acceso-ar-container">
 
-        <div className="acceso-ar-info">
-          <span className="acceso-ar-eyebrow">
-            FORGE A&R
-          </span>
 
-          <h1>
-            Evalúa talento con
-            <span> mejores señales.</span>
-          </h1>
-
-          <p className="acceso-ar-description">
-            Accede al espacio privado de evaluación para revisar
-            postulaciones, analizar demos y consultar indicadores de riesgo.
-          </p>
-        </div>
 
         <div className="acceso-ar-card">
           <div className="acceso-ar-card-header">
@@ -39,7 +27,7 @@ function AccesoAR() {
               <div className="acceso-ar-input">
                 <input
                   type="email"
-                  placeholder="nombre@sello.com"
+                  placeholder="nombre@dominio.com"
                 />
               </div>
             </div>

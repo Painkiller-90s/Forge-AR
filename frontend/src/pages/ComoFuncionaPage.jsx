@@ -427,13 +427,7 @@ function ComoFuncionaPage() {
 
         </div>
 
-        <Link
-          to="/acceso"
-          className="primary-button"
-        >
-          Iniciar sesión
-          <ArrowRight size={18} />
-        </Link>
+
 
       </section>
 
