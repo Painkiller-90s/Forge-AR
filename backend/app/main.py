@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
+from app.routes.user_route import router as user_router
 
 from app.config.database import (
     connect_to_mongo,
@@ -23,6 +23,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+app.include_router(user_router)
 
 
 @app.get("/")
