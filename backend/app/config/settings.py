@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     mongodb_url: str
     mongodb_db_name: str
 
+    jwt_secret_key: str
+    jwt_algorithm: str
+    access_token_expire_minutes: int
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
         env_file_encoding="utf-8"
