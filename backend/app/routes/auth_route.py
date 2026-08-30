@@ -1,19 +1,18 @@
-from fastapi import APIRouter, HTTPException, status
-
-from app.config.database import database
-from app.schemas.auth_schema import LoginRequest, TokenResponse
-from app.utils.security import verify_password, create_access_token
-from app.schemas.user_schema import UserResponse
-from app.utils.security import (
-    verify_password,
-    create_access_token,
-    decode_access_token
-)
+import jwt
 
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-import jwt
+
+from app.config.database import database
+from app.schemas.auth_schema import LoginRequest, TokenResponse
+from app.schemas.user_schema import UserResponse
+from app.utils.security import (
+    verify_password,
+    create_access_token,
+    decode_access_token,
+)
+
 
 router = APIRouter(
     prefix="/auth",
@@ -22,56 +21,7 @@ router = APIRouter(
 
 bearer_scheme = HTTPBearer()
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
-):
-    token = credentials.credentials
 
-    try:
-        payload = decode_access_token(token)
-
-        user_id = payload.get("sub")
-
-        if not user_id or not ObjectId.is_valid(user_id):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token inválido"
-            )
-
-    except jwt.InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado"
-        )
-
-    user = await database.users.find_one(
-        {"_id": ObjectId(user_id)}
-    )
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario no encontrado"
-        )
-
-    if not user.get("is_active", True):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Usuario desactivado"
-        )
-
-    return user
-
-async def require_admin(
-    current_user: dict = Depends(get_current_user)
-):
-    if current_user.get("role") != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Se requieren permisos de administrador"
-        )
-
-    return current_user
 def serialize_user(user: dict) -> dict:
     return {
         "id": str(user["_id"]),
@@ -79,8 +29,9 @@ def serialize_user(user: dict) -> dict:
         "email": user["email"],
         "role": user["role"],
         "label_id": user.get("label_id"),
-        "is_active": user["is_active"]
+        "is_active": user["is_active"],
     }
+
 
 @router.post(
     "/login",
@@ -124,6 +75,62 @@ async def login(credentials: LoginRequest):
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(
+        bearer_scheme
+    )
+):
+    token = credentials.credentials
+
+    try:
+        payload = decode_access_token(token)
+
+        user_id = payload.get("sub")
+
+        if not user_id or not ObjectId.is_valid(user_id):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token inválido"
+            )
+
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado"
+        )
+
+    user = await database.users.find_one(
+        {"_id": ObjectId(user_id)}
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario no encontrado"
+        )
+
+    if not user.get("is_active", True):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario desactivado"
+        )
+
+    return user
+
+
+async def require_admin(
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Se requieren permisos de administrador"
+        )
+
+    return current_user
+
 
 @router.get(
     "/me",

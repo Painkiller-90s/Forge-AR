@@ -6,6 +6,7 @@ from app.models.user_model import user_document
 from app.schemas.user_schema import UserCreate, UserUpdate, UserResponse
 from app.utils.security import hash_password
 from app.routes.auth_route import require_admin
+from pymongo.errors import DuplicateKeyError
 
 
 router = APIRouter(
@@ -53,7 +54,17 @@ async def create_user(user: UserCreate):
         label_id=user.label_id
     )
 
-    result = await database.users.insert_one(document)
+    try:
+        result = await database.users.insert_one(
+            document
+        )
+
+    except DuplicateKeyError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Ya existe un usuario con ese correo"
+        )
+    
 
     created_user = await database.users.find_one(
         {"_id": result.inserted_id}
