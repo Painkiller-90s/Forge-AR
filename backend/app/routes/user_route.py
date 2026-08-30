@@ -1,15 +1,17 @@
 from bson import ObjectId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.config.database import database
 from app.models.user_model import user_document
 from app.schemas.user_schema import UserCreate, UserUpdate, UserResponse
 from app.utils.security import hash_password
+from app.routes.auth_route import require_admin
 
 
 router = APIRouter(
     prefix="/users",
-    tags=["Users"]
+    tags=["Users"],
+    dependencies=[Depends(require_admin)]
 )
 
 
