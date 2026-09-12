@@ -119,6 +119,8 @@ function PostulacionPage() {
       <form
         className="postulacion-form"
         onSubmit={handleSubmit(onSubmit)}
+        autoComplete="off"
+        noValidate
       >
 
         <section>
@@ -134,6 +136,7 @@ function PostulacionPage() {
 
           <input
             type="text"
+            autoComplete="off"
             {...register("nombre_artistico", {
               required: "El nombre artístico es obligatorio",
 
@@ -195,7 +198,7 @@ function PostulacionPage() {
 
           <input
             type="text"
-            placeholder="Ej: Francisco - Voz, Pedro - Guitarra"
+            autoComplete="off"
             {...register("integrantes")}
           />
 
@@ -208,6 +211,7 @@ function PostulacionPage() {
             type="number"
             min="1900"
             max="2100"
+            autoComplete="off"
             {...register("anio_inicio")}
           />
 
@@ -218,6 +222,7 @@ function PostulacionPage() {
 
           <input
             type="text"
+            autoComplete="off"
             {...register("pais", {
               required: "El país es obligatorio",
             })}
@@ -236,6 +241,7 @@ function PostulacionPage() {
 
           <input
             type="text"
+            autoComplete="off"
             {...register("ciudad")}
           />
 
@@ -255,7 +261,7 @@ function PostulacionPage() {
 
           <input
             type="text"
-            placeholder="Ej: Rock, Metal, Shoegaze"
+            autoComplete="off"
             {...register("generos", {
               required: "Ingresa al menos un género musical",
             })}
@@ -274,6 +280,7 @@ function PostulacionPage() {
 
           <textarea
             rows="7"
+            autoComplete="off"
             {...register("biografia", {
               required: "La biografía es obligatoria",
 
@@ -307,6 +314,7 @@ function PostulacionPage() {
 
           <input
             type="text"
+            autoComplete="off"
             {...register("nombre_demo", {
               required: "El nombre del demo es obligatorio",
             })}
@@ -334,7 +342,7 @@ function PostulacionPage() {
 
           <input
             type="url"
-            placeholder="https://open.spotify.com/..."
+            autoComplete="off"
             {...register("spotify_url")}
           />
 
@@ -345,7 +353,7 @@ function PostulacionPage() {
 
           <input
             type="url"
-            placeholder="https://instagram.com/..."
+            autoComplete="off"
             {...register("instagram_url")}
           />
 
@@ -363,10 +371,21 @@ function PostulacionPage() {
             Correo de contacto
           </label>
 
+          <label>
+            Correo de contacto
+          </label>
+
           <input
             type="email"
+            autoComplete="off"
             {...register("correo_contacto", {
               required: "El correo es obligatorio",
+
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+                message:
+                  "Ingresa un correo válido, por ejemplo nombre@dominio.com",
+              },
             })}
           />
 
@@ -383,6 +402,7 @@ function PostulacionPage() {
 
           <textarea
             rows="5"
+            autoComplete="off"
             {...register("mensaje_sello")}
           />
 
@@ -427,7 +447,8 @@ function PostulacionPage() {
               })}
             />
 
-            Autorizo el uso del demo para fines de evaluación.
+            Autorizo el uso del demo para recepción,
+            almacenamiento y evaluación interna del sello.
 
           </label>
 
