@@ -5,13 +5,14 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
+import Navbar from "./components/NavBar";
 import Footer from "./components/Footer";
 
 import HomePage from "./pages/HomePage";
 import ComoFuncionaPage from "./pages/ComoFuncionaPage";
 import AccesoAR from "./pages/AccesoAR";
 import DashboardAR from "./pages/DashboardAR";
+import PostulacionPage from "./pages/PostulacionPage";
 
 
 function AppContent() {
@@ -21,11 +22,17 @@ function AppContent() {
     location.pathname.startsWith("/dashboard") ||
     location.pathname.startsWith("/admin");
 
+  const isPostulacion =
+    location.pathname.startsWith("/postulacion");
+
   return (
     <>
-      {!isDashboard && <Navbar />}
+      {!isDashboard && (
+        <Navbar soloLogo={isPostulacion} />
+      )}
 
       <Routes>
+
         <Route
           path="/"
           element={<HomePage />}
@@ -45,9 +52,17 @@ function AppContent() {
           path="/dashboard"
           element={<DashboardAR />}
         />
+
+        <Route
+          path="/postulacion/:selloId"
+          element={<PostulacionPage />}
+        />
+
       </Routes>
 
-      {!isDashboard && <Footer />}
+      {!isDashboard && !isPostulacion && (
+        <Footer />
+      )}
     </>
   );
 }

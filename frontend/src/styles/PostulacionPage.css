@@ -1,0 +1,466 @@
+/* =========================
+   POSTULACIÓN
+========================= */
+
+.postulacion-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+
+  padding:
+    clamp(55px, 7vw, 90px)
+    clamp(24px, 6vw, 90px)
+    100px;
+
+  background:
+    radial-gradient(
+      circle at 25% 10%,
+      rgba(183, 53, 45, 0.08),
+      transparent 30%
+    ),
+    var(--background);
+
+  color: var(--text);
+}
+
+
+/* =========================
+   CABECERA
+========================= */
+
+.postulacion-page > h1 {
+  width: 100%;
+  max-width: 900px;
+
+  margin:
+    0
+    auto
+    14px;
+
+  font-size: clamp(2.3rem, 5vw, 4rem);
+  font-weight: 600;
+  line-height: 1;
+
+  letter-spacing: -0.05em;
+}
+
+
+.postulacion-page > p {
+  width: 100%;
+  max-width: 900px;
+
+  margin:
+    0
+    auto
+    45px;
+
+  color: var(--text-secondary);
+
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   FORMULARIO
+========================= */
+
+.postulacion-form {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 26px;
+}
+
+
+/* =========================
+   SECCIONES
+========================= */
+
+.postulacion-form section {
+  width: 100%;
+
+  padding:
+    clamp(28px, 4vw, 42px);
+
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.018),
+      transparent
+    ),
+    var(--surface);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+
+.postulacion-form section h2 {
+  margin:
+    0
+    0
+    30px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text);
+
+  font-size: 1.15rem;
+  font-weight: 600;
+
+  letter-spacing: -0.02em;
+}
+
+
+/* =========================
+   LABELS
+========================= */
+
+.postulacion-form section > label {
+  margin:
+    18px
+    0
+    9px;
+
+  color: #c2c4c8;
+
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+
+.postulacion-form section h2 + label {
+  margin-top: 0;
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+.postulacion-form input:not([type="checkbox"]),
+.postulacion-form select,
+.postulacion-form textarea {
+  width: 100%;
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  outline: none;
+
+  background: #0c0d0f;
+
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 0.9rem;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.postulacion-form input:not([type="checkbox"]),
+.postulacion-form select {
+  height: 52px;
+
+  padding:
+    0
+    15px;
+}
+
+
+.postulacion-form textarea {
+  min-height: 130px;
+
+  padding: 15px;
+
+  resize: vertical;
+
+  line-height: 1.6;
+}
+
+
+.postulacion-form input:hover,
+.postulacion-form select:hover,
+.postulacion-form textarea:hover {
+  border-color: #34373c;
+}
+
+
+.postulacion-form input:focus,
+.postulacion-form select:focus,
+.postulacion-form textarea:focus {
+  border-color: var(--red);
+
+  background: #0a0b0d;
+
+  box-shadow:
+    0 0 0 3px rgba(183, 53, 45, 0.08);
+}
+
+
+.postulacion-form input::placeholder,
+.postulacion-form textarea::placeholder {
+  color: #5c6065;
+}
+
+
+/* =========================
+   SELECT
+========================= */
+
+.postulacion-form select {
+  cursor: pointer;
+}
+
+
+/* =========================
+   CHECKBOXES
+========================= */
+
+.postulacion-form section:last-of-type > label {
+  margin:
+    0
+    0
+    18px;
+
+  padding: 16px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  background: #0c0d0f;
+
+  color: var(--text-secondary);
+
+  line-height: 1.5;
+
+  cursor: pointer;
+}
+
+
+.postulacion-form input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+
+  margin-top: 2px;
+
+  accent-color: var(--red);
+
+  cursor: pointer;
+}
+
+
+/* =========================
+   ERRORES
+========================= */
+
+.postulacion-form section > p {
+  margin:
+    7px
+    0
+    0;
+
+  color: var(--red-light);
+
+  font-size: 0.78rem;
+}
+
+
+/* =========================
+   BOTÓN
+========================= */
+
+.postulacion-submit {
+  width: 100%;
+
+  margin-top: 8px;
+
+  border: none;
+}
+
+
+.postulacion-submit:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================
+   ÉXITO
+========================= */
+
+.postulacion-success-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.postulacion-success {
+  width: 100%;
+  max-width: 620px;
+
+  padding:
+    clamp(35px, 5vw, 55px);
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.018),
+      transparent
+    ),
+    var(--surface);
+
+  text-align: center;
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+
+.postulacion-success span {
+  display: block;
+
+  margin-bottom: 16px;
+
+  color: var(--red-light);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  letter-spacing: 0.16em;
+}
+
+
+.postulacion-success h1 {
+  margin:
+    0
+    0
+    18px;
+
+  font-size: clamp(2rem, 5vw, 3.2rem);
+
+  line-height: 1.05;
+
+  letter-spacing: -0.045em;
+}
+
+
+.postulacion-success p {
+  margin: 0;
+
+  color: var(--text-secondary);
+
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   AUTOFILL
+========================= */
+
+.postulacion-form input:-webkit-autofill,
+.postulacion-form input:-webkit-autofill:hover,
+.postulacion-form input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+
+  -webkit-box-shadow:
+    0 0 0 1000px #0c0d0f inset;
+
+  box-shadow:
+    0 0 0 1000px #0c0d0f inset;
+
+  caret-color: var(--text);
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 700px) {
+
+  .postulacion-page {
+    min-height: calc(100vh - 70px);
+
+    padding:
+      45px
+      22px
+      70px;
+  }
+
+
+  .postulacion-page > p {
+    margin-bottom: 32px;
+  }
+
+
+  .postulacion-form {
+    gap: 20px;
+  }
+
+
+  .postulacion-form section {
+    padding:
+      28px
+      24px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .postulacion-page {
+    padding:
+      36px
+      16px
+      60px;
+  }
+
+
+  .postulacion-page > h1 {
+    font-size: 2.2rem;
+  }
+
+
+  .postulacion-form section {
+    padding:
+      24px
+      18px;
+  }
+
+
+  .postulacion-success {
+    padding:
+      34px
+      24px;
+  }
+
+}

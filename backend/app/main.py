@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.routes.user_route import router as user_router
 from app.routes.auth_route import router as auth_router
+from app.routes.postulacion_route import router as postulacion_router
 
 from app.config.database import (
     connect_to_mongo,
@@ -39,6 +42,7 @@ app.add_middleware(
 
 app.include_router(user_router)
 app.include_router(auth_router)
+app.include_router(postulacion_router)
 
 
 @app.get("/")
