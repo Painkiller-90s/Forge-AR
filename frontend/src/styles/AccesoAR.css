@@ -278,7 +278,7 @@
 }
 
 /* =========================
-   AUTOFILL DEL NAVEGADOR
+   AUTOFILL DEL NAVEGADOR y ERRORES
 ========================= */
 
 .acceso-ar-input input:-webkit-autofill,
@@ -299,4 +299,11 @@
 
   transition:
     background-color 9999s ease-in-out 0s;
+}
+
+.acceso-ar-error {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--red);
 }
