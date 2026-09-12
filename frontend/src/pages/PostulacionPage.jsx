@@ -366,11 +366,6 @@ function PostulacionPage() {
             Contacto
           </h2>
 
-
-          <label>
-            Correo de contacto
-          </label>
-
           <label>
             Correo de contacto
           </label>
@@ -426,7 +421,7 @@ function PostulacionPage() {
               })}
             />
 
-            Acepto el tratamiento de mis datos personales.
+            Autorizo el tratamiento de mis datos personales.
 
           </label>
 
@@ -447,8 +442,7 @@ function PostulacionPage() {
               })}
             />
 
-            Autorizo el uso del demo para recepción,
-            almacenamiento y evaluación interna del sello.
+            Autorizo el uso del demo para recepción, almacenamiento, análisis técnico y evaluación interna del sello.
 
           </label>
 
