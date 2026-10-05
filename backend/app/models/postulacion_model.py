@@ -22,10 +22,20 @@ def postulacion_document(data: dict, sello_id: str) -> dict:
             "mensaje_sello": data.get("mensaje_sello"),
         },
 
-        "demo": {
-            "nombre": data["nombre_demo"],
-            "archivo_id": None,
-        },
+        "demos": [
+            {
+                "nombre": demo["nombre"],
+                "archivo_id": demo["archivo_id"],
+                "nombre_archivo": demo["nombre_archivo"],
+                "formato": demo["formato"],
+                "tamano_bytes": demo["tamano_bytes"],
+                "mime_type": demo.get("mime_type"),
+                "sha256": demo["sha256"],
+                "storage_key": demo["storage_key"],
+                "uploaded_at": demo["uploaded_at"],
+            }
+            for demo in data["demos"]
+        ],
 
         "consentimientos": {
             "tratamiento_datos": data["consentimiento_datos"],

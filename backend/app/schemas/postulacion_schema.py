@@ -1,10 +1,26 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field
 
 
-# Campos obligatorios
+# =========================
+# DEMO
+# =========================
+
+class DemoCreate(BaseModel):
+    nombre: str = Field(
+        min_length=1,
+        max_length=150
+    )
+
+
+# =========================
+# POSTULACIÓN
+# =========================
+
 class PostulacionCreate(BaseModel):
+
     nombre_artistico: str = Field(
         min_length=2,
         max_length=100
@@ -32,12 +48,17 @@ class PostulacionCreate(BaseModel):
         max_length=3000
     )
 
-    nombre_demo: str = Field(
+    # HU002:
+    # mínimo 1 demo y máximo 3
+    demos: list[DemoCreate] = Field(
         min_length=1,
-        max_length=150
+        max_length=3
     )
 
-    # Campos opcionales
+    # =========================
+    # CAMPOS OPCIONALES
+    # =========================
+
     integrantes: list[str] = Field(
         default_factory=list,
         max_length=30
@@ -75,10 +96,29 @@ class PostulacionCreate(BaseModel):
     autorizacion_demo: Literal[True]
 
 
+# =========================
+# RESPUESTA DE UNA DEMO
+# =========================
+
+class DemoResponse(BaseModel):
+    archivo_id: str
+    nombre: str
+    nombre_archivo: str
+    formato: str
+    tamano_bytes: int
+    mime_type: str | None
+    sha256: str
+    uploaded_at: datetime
+
+
+# =========================
+# RESPUESTA DE POSTULACIÓN
+# =========================
+
 class PostulacionResponse(BaseModel):
     id: str
     sello_id: str
     nombre_artistico: str
     correo_contacto: EmailStr
-    nombre_demo: str
+    demos: list[DemoResponse]
     estado: str
