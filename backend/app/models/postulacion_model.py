@@ -33,6 +33,37 @@ def postulacion_document(data: dict, sello_id: str) -> dict:
                 "sha256": demo["sha256"],
                 "storage_key": demo["storage_key"],
                 "uploaded_at": demo["uploaded_at"],
+
+                # HU003 - Validación técnica del audio
+                "audio_tecnico": {
+                    "codec": demo["audio_tecnico"]["codec"],
+                    "formato_contenedor": (
+                        demo["audio_tecnico"]["formato_contenedor"]
+                    ),
+                    "sample_rate_hz": (
+                        demo["audio_tecnico"]["sample_rate_hz"]
+                    ),
+                    "bitrate_bps": (
+                        demo["audio_tecnico"]["bitrate_bps"]
+                    ),
+                    "bits_per_sample": (
+                        demo["audio_tecnico"]["bits_per_sample"]
+                    ),
+                    "channels": (
+                        demo["audio_tecnico"]["channels"]
+                    ),
+                    "duracion_segundos": (
+                        demo["audio_tecnico"]["duracion_segundos"]
+                    ),
+                },
+
+                "validacion_tecnica": {
+                    "valido": demo["audio_tecnico"]["valido"],
+                    "motivos_rechazo": (
+                        demo["audio_tecnico"]["motivos_rechazo"]
+                    ),
+                    "q_audio": demo["audio_tecnico"]["q_audio"],
+                },
             }
             for demo in data["demos"]
         ],

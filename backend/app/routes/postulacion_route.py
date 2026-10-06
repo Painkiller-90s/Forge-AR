@@ -20,6 +20,7 @@ from app.services.file_service import (
     guardar_demo,
 )
 
+from app.services.audio_validation_service import validar_audio
 
 router = APIRouter(
     prefix="/postulaciones",
@@ -47,6 +48,10 @@ def serialize_postulacion(postulacion: dict) -> dict:
                 "mime_type": demo.get("mime_type"),
                 "sha256": demo["sha256"],
                 "uploaded_at": demo["uploaded_at"],
+
+                "audio_tecnico": demo["audio_tecnico"],
+
+                "validacion_tecnica": demo["validacion_tecnica"],
             }
             for demo in postulacion["demos"]
         ],
@@ -153,6 +158,14 @@ async def crear_postulacion(
             datos_postulacion.demos,
             archivos
         ):
+            # HU003:
+            # validar técnicamente antes de almacenar
+            audio_tecnico = await validar_audio(
+                archivo
+            )
+
+            # HU002:
+            # almacenar solamente si pasó la validación
             metadatos = await guardar_demo(
                 archivo
             )
@@ -160,6 +173,7 @@ async def crear_postulacion(
             demos_guardadas.append({
                 "nombre": demo.nombre,
                 **metadatos,
+                "audio_tecnico": audio_tecnico,
             })
 
     except ValueError as exc:

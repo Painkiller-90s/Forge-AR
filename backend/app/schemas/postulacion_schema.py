@@ -96,6 +96,22 @@ class PostulacionCreate(BaseModel):
     autorizacion_demo: Literal[True]
 
 
+class AudioTecnicoResponse(BaseModel):
+    codec: str
+    formato_contenedor: str
+    sample_rate_hz: int
+    bitrate_bps: int | None
+    bits_per_sample: int | None
+    channels: int | None
+    duracion_segundos: float | None
+
+
+class ValidacionTecnicaResponse(BaseModel):
+    valido: bool
+    motivos_rechazo: list[str]
+    q_audio: int
+
+
 # =========================
 # RESPUESTA DE UNA DEMO
 # =========================
@@ -109,6 +125,9 @@ class DemoResponse(BaseModel):
     mime_type: str | None
     sha256: str
     uploaded_at: datetime
+
+    audio_tecnico: AudioTecnicoResponse
+    validacion_tecnica: ValidacionTecnicaResponse
 
 
 # =========================
