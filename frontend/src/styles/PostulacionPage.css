@@ -230,6 +230,320 @@
 
 
 /* =========================
+   DEMOS
+========================= */
+
+.demos-section .demos-intro {
+  margin:
+    -10px
+    0
+    26px;
+
+  color: var(--text-secondary);
+
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+
+/* =========================
+   TARJETA DEMO
+========================= */
+
+.demo-item {
+  width: 100%;
+
+  margin-bottom: 18px;
+
+  padding: 22px;
+
+  border: 1px solid var(--border);
+  border-radius: 5px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.012),
+      transparent
+    ),
+    #0c0d0f;
+}
+
+
+.demo-item:last-of-type {
+  margin-bottom: 0;
+}
+
+
+/* =========================
+   CABECERA DEMO
+========================= */
+
+.demo-item-header {
+  width: 100%;
+
+  margin-bottom: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+
+.demo-item-header h3 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  letter-spacing: -0.01em;
+}
+
+
+/* =========================
+   LABELS DEMO
+========================= */
+
+.demo-item > label {
+  display: block;
+
+  margin:
+    16px
+    0
+    9px;
+
+  color: #c2c4c8;
+
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+
+.demo-item-header + label {
+  margin-top: 0;
+}
+
+
+/* =========================
+   INPUT ARCHIVO
+========================= */
+
+.demo-item input[type="file"] {
+  width: 100%;
+  height: 52px;
+
+  padding: 0;
+
+  overflow: hidden;
+
+  color: var(--text-secondary);
+
+  cursor: pointer;
+}
+
+
+.demo-item input[type="file"]::file-selector-button {
+  height: 100%;
+
+  margin-right: 14px;
+
+  padding:
+    0
+    18px;
+
+  border: none;
+  border-right: 1px solid var(--border);
+
+  background: #15171a;
+
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.demo-item input[type="file"]::file-selector-button:hover {
+  background: #1c1e22;
+
+  color: var(--red-light);
+}
+
+
+/* =========================
+   INFORMACIÓN ARCHIVO
+========================= */
+
+.demo-file-info {
+  width: 100%;
+
+  margin-top: 10px;
+
+  padding:
+    10px
+    12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.025);
+  border-radius: 4px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: var(--text-secondary);
+
+  font-size: 0.76rem;
+}
+
+
+.demo-file-info span:first-child {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.demo-file-info span:last-child {
+  flex-shrink: 0;
+
+  color: #8d9197;
+}
+
+
+/* =========================
+   ELIMINAR DEMO
+========================= */
+
+.demo-remove-button {
+  flex-shrink: 0;
+
+  padding:
+    7px
+    12px;
+
+  border: 1px solid rgba(183, 53, 45, 0.4);
+  border-radius: 4px;
+
+  background: transparent;
+
+  color: var(--red-light);
+
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.demo-remove-button:hover {
+  border-color: var(--red);
+
+  background: rgba(183, 53, 45, 0.08);
+
+  color: #ff7168;
+}
+
+
+/* =========================
+   AGREGAR DEMO
+========================= */
+
+.demo-add-button {
+  width: 100%;
+
+  margin-top: 4px;
+
+  padding:
+    14px
+    18px;
+
+  border: 1px dashed #34373c;
+  border-radius: 4px;
+
+  background: transparent;
+
+  color: var(--text-secondary);
+
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.demo-add-button:hover {
+  border-color: var(--red);
+
+  background: rgba(183, 53, 45, 0.04);
+
+  color: var(--red-light);
+}
+
+
+/* =========================
+   LÍMITE DEMOS
+========================= */
+
+.demos-section .demo-limit {
+  margin:
+    14px
+    0
+    0;
+
+  color: #74787e;
+
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   ERROR DEMOS
+========================= */
+
+.demos-section .demo-error {
+  margin:
+    14px
+    0
+    0;
+
+  color: var(--red-light);
+
+  font-size: 0.78rem;
+}
+
+
+/* =========================
    CHECKBOXES
 ========================= */
 
@@ -287,8 +601,62 @@
 }
 
 
+/* Evita que los textos informativos
+   de la sección demos hereden
+   el estilo rojo de error */
+
+.postulacion-form .demos-section > .demos-intro {
+  margin:
+    -10px
+    0
+    26px;
+
+  color: var(--text-secondary);
+
+  font-size: 0.82rem;
+}
+
+
+.postulacion-form .demos-section > .demo-limit {
+  margin:
+    14px
+    0
+    0;
+
+  color: #74787e;
+
+  font-size: 0.72rem;
+}
+
+
 /* =========================
-   BOTÓN
+   ERROR SERVIDOR
+========================= */
+
+.postulacion-error-servidor {
+  margin:
+    -4px
+    0
+    0;
+
+  padding:
+    14px
+    16px;
+
+  border: 1px solid rgba(183, 53, 45, 0.35);
+  border-radius: 4px;
+
+  background: rgba(183, 53, 45, 0.06);
+
+  color: var(--red-light);
+
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   BOTÓN ENVIAR
 ========================= */
 
 .postulacion-submit {
@@ -432,6 +800,12 @@
       24px;
   }
 
+
+  .demo-item {
+    padding:
+      20px;
+  }
+
 }
 
 
@@ -454,6 +828,76 @@
     padding:
       24px
       18px;
+  }
+
+
+  /* =========================
+     DEMOS MOBILE
+  ========================= */
+
+  .demo-item {
+    padding:
+      18px
+      16px;
+  }
+
+
+  .demo-item-header {
+    align-items: center;
+
+    gap: 12px;
+  }
+
+
+  .demo-item-header h3 {
+    font-size: 0.9rem;
+  }
+
+
+  .demo-remove-button {
+    padding:
+      6px
+      10px;
+
+    font-size: 0.68rem;
+  }
+
+
+  .demo-item input[type="file"] {
+    height: auto;
+
+    min-height: 52px;
+  }
+
+
+  .demo-item input[type="file"]::file-selector-button {
+    min-height: 50px;
+
+    padding:
+      0
+      12px;
+
+    margin-right: 10px;
+  }
+
+
+  .demo-file-info {
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 5px;
+  }
+
+
+  .demo-file-info span:first-child {
+    width: 100%;
+  }
+
+
+  .demo-add-button {
+    padding:
+      13px
+      14px;
   }
 
 
