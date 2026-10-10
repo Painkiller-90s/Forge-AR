@@ -3,6 +3,7 @@ import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
+import re
 
 import boto3
 from fastapi import UploadFile
@@ -195,3 +196,64 @@ async def eliminar_demo(storage_key: str) -> None:
         Bucket=settings.r2_bucket_name,
         Key=storage_key,
     )
+
+
+# ==========================================
+# HU004 - LECTURA PRIVADA DE DEMOS
+# ==========================================
+
+async def obtener_demo_privada(
+    storage_key: str,
+    rango: str | None = None,
+) -> dict:
+    """
+    Obtiene un archivo desde Cloudflare R2 sin
+    generar una URL pública ni una URL firmada.
+
+    Permite obtener el archivo completo o un
+    rango de bytes para reproducción de audio.
+
+    IMPORTANTE:
+    La autorización del usuario debe verificarse
+    antes de ejecutar esta función.
+    """
+
+    # Validar la clave de almacenamiento
+    if not storage_key:
+        raise ValueError(
+            "La clave de almacenamiento es obligatoria."
+        )
+
+    # Las demos se almacenan con UUID hexadecimal
+    # y extensión MP3 o FLAC.
+    patron = r"demos/[0-9a-f]{32}\.(mp3|flac)"
+
+    if not re.fullmatch(patron, storage_key):
+        raise ValueError(
+            "La clave de almacenamiento no es válida."
+        )
+
+    # Preparar solicitud a R2
+    parametros = {
+        "Bucket": settings.r2_bucket_name,
+        "Key": storage_key,
+    }
+
+    # El rango debe haber sido validado
+    # previamente por el endpoint.
+    if rango is not None:
+        parametros["Range"] = rango
+
+    # Obtener cliente privado de R2
+    cliente_r2 = obtener_cliente_r2()
+
+    # boto3 es síncrono: ejecutarlo en otro hilo
+    respuesta = await asyncio.to_thread(
+        cliente_r2.get_object,
+        **parametros,
+    )
+
+    # No leemos el archivo completo aquí.
+    # Body contiene un flujo que el endpoint
+    # consumirá por partes y deberá cerrar.
+    return respuesta
