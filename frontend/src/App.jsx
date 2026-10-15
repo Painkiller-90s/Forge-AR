@@ -13,6 +13,8 @@ import ComoFuncionaPage from "./pages/ComoFuncionaPage";
 import AccesoAR from "./pages/AccesoAR";
 import DashboardAR from "./pages/DashboardAR";
 import PostulacionPage from "./pages/PostulacionPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardAdmin from "./pages/DashboardAdmin";
 
 
 function AppContent() {
@@ -50,12 +52,25 @@ function AppContent() {
 
         <Route
           path="/dashboard"
-          element={<DashboardAR />}
+          element={
+            <ProtectedRoute requiredRole="ar">
+              <DashboardAR />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/postulacion/:selloId"
           element={<PostulacionPage />}
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <DashboardAdmin />
+            </ProtectedRoute>
+          }
         />
 
       </Routes>

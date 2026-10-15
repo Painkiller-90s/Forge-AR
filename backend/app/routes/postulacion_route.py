@@ -166,7 +166,7 @@ async def reproducir_demo(
     request: Request,
     current_user: dict = Depends(get_current_user),
 ):
-    if current_user.get("role") not in ("ar", "admin"):
+    if current_user.get("role") != "ar":
         raise HTTPException(
             status_code=403,
             detail="No tienes permiso para acceder a las demos.",
