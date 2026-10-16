@@ -126,8 +126,8 @@ class DemoResponse(BaseModel):
     sha256: str
     uploaded_at: datetime
 
-    audio_tecnico: AudioTecnicoResponse
-    validacion_tecnica: ValidacionTecnicaResponse
+    audio_tecnico: AudioTecnicoResponse | None = None
+    validacion_tecnica: ValidacionTecnicaResponse | None = None
 
 
 # =========================

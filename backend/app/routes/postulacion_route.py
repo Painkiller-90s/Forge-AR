@@ -1,6 +1,5 @@
 import asyncio
 import re
-from datetime import datetime, timezone
 from typing import Annotated
 
 from bson import ObjectId
@@ -24,6 +23,7 @@ from app.routes.auth_route import get_current_user
 from app.schemas.postulacion_schema import PostulacionCreate, PostulacionResponse
 from app.services.audio_validation_service import validar_audio
 from app.services.file_service import eliminar_demo, guardar_demo, obtener_demo_privada
+from app.services.audit_service import registrar_auditoria
 
 router = APIRouter(prefix="/postulaciones", tags=["Postulaciones"])
 
@@ -44,8 +44,8 @@ def serialize_postulacion(postulacion: dict) -> dict:
                 "mime_type": demo.get("mime_type"),
                 "sha256": demo["sha256"],
                 "uploaded_at": demo["uploaded_at"],
-                "audio_tecnico": demo["audio_tecnico"],
-                "validacion_tecnica": demo["validacion_tecnica"],
+                "audio_tecnico": demo.get("audio_tecnico"),
+                "validacion_tecnica": demo.get("validacion_tecnica"),
             }
             for demo in postulacion["demos"]
         ],
@@ -157,6 +157,72 @@ async def crear_postulacion(
 
     return serialize_postulacion(creada)
 
+
+
+# HU014: consulta protegida y auditable de una postulación.
+@router.get(
+    "/{postulacion_id}",
+    response_model=PostulacionResponse,
+)
+async def consultar_postulacion(
+    postulacion_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    # Solo el evaluador A&R puede consultar postulaciones.
+    if current_user.get("role") != "ar":
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permiso para consultar postulaciones.",
+        )
+
+    sello_id = current_user.get("label_id")
+
+    if not sello_id:
+        raise HTTPException(
+            status_code=403,
+            detail="El usuario no tiene un sello asignado.",
+        )
+
+    if not ObjectId.is_valid(postulacion_id):
+        raise HTTPException(
+            status_code=400,
+            detail="ID de postulación inválido.",
+        )
+
+    # Consultar únicamente postulaciones del sello autorizado.
+    postulacion = await database.postulaciones.find_one({
+        "_id": ObjectId(postulacion_id),
+        "sello_id": sello_id,
+    })
+
+    if not postulacion:
+        raise HTTPException(
+            status_code=404,
+            detail="Postulación no encontrada.",
+        )
+
+    # Registrar la consulta antes de entregar la información.
+# Preparar y validar la respuesta antes de registrar el acceso.
+    respuesta = PostulacionResponse.model_validate(
+        serialize_postulacion(postulacion)
+    )
+    try:
+        await registrar_auditoria(
+            usuario=current_user,
+            sello_id=sello_id,
+            postulacion_id=str(postulacion["_id"]),
+            recurso="postulacion",
+            recurso_id=str(postulacion["_id"]),
+            accion="CONSULTA_POSTULACION",
+            metodo="detalle",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="No fue posible registrar la consulta.",
+        ) from exc
+
+    return respuesta
 
 # HU004: reproducción protegida de demos mediante streaming.
 @router.get("/{postulacion_id}/demos/{archivo_id}/stream")
@@ -272,19 +338,26 @@ async def reproducir_demo(
 
     cuerpo = objeto["Body"]
 
-    # Registrar auditoría antes de entregar audio; si falla, cerrar el flujo.
+
+    # Registrar auditoría antes de entregar audio.
+    # Si falla el registro, se impide el acceso a la demo.
     try:
-        await database.auditorias.insert_one({
-            "usuario_id": str(current_user["_id"]),
-            "rol": current_user["role"],
-            "sello_id": postulacion["sello_id"],
-            "postulacion_id": str(postulacion["_id"]),
-            "recurso": "demo",
-            "recurso_id": archivo_id,
-            "accion": "ACCESO_DEMO_AUTORIZADO",
-            "metodo": "stream",
-            "fecha": datetime.now(timezone.utc),
-        })
+        await registrar_auditoria(
+            usuario=current_user,
+            sello_id=postulacion["sello_id"],
+            postulacion_id=str(postulacion["_id"]),
+            recurso="demo",
+            recurso_id=archivo_id,
+            accion="ACCESO_DEMO_AUTORIZADO",
+            metodo="stream",
+        )
+    except Exception as exc:
+        await asyncio.to_thread(cuerpo.close)
+        raise HTTPException(
+            status_code=500,
+            detail="No fue posible registrar el acceso.",
+        ) from exc
+
     except Exception as exc:
         await asyncio.to_thread(cuerpo.close)
         raise HTTPException(
