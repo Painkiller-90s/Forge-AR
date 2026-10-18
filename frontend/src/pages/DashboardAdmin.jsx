@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-
+import AuditoriasPanel from "../components/AuditoriasPanel";
 import "../styles/DashboardAR.css";
 
 function DashboardAdmin() {
@@ -26,6 +26,8 @@ function DashboardAdmin() {
             Bienvenido al panel administrativo de Forge A&R.
           </p>
         </header>
+
+        <AuditoriasPanel />
 
         <section className="dashboard-panel">
           <div className="dashboard-panel-header">

@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.config.database import database
 from app.routes.auth_route import require_admin
+from bson import ObjectId
 
 
 router = APIRouter(
@@ -38,8 +39,37 @@ async def listar_auditorias(
         .limit(limite)
     )
 
+
     async for registro in cursor:
         registro["id"] = str(registro.pop("_id"))
         registros.append(registro)
 
+    # Obtener los identificadores válidos de los usuarios auditados.
+    ids_usuarios = {
+        ObjectId(registro["usuario_id"])
+        for registro in registros
+        if isinstance(registro.get("usuario_id"), str)
+        and ObjectId.is_valid(registro["usuario_id"])
+    }
+
+    # Consultar los nombres únicamente dentro del sello autorizado.
+    nombres_usuarios = {}
+
+    if ids_usuarios:
+        async for usuario in database.users.find(
+            {
+                "_id": {"$in": list(ids_usuarios)},
+                "label_id": sello_id,
+            },
+            {"name": 1},
+        ):
+            nombres_usuarios[str(usuario["_id"])] = usuario.get("name")
+
+    # Agregar el nombre a la respuesta sin modificar las auditorías.
+    for registro in registros:
+        registro["usuario_nombre"] = nombres_usuarios.get(
+            registro.get("usuario_id")
+        )
+
     return registros
+
