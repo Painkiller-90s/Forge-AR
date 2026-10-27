@@ -12,6 +12,11 @@ from app.services.spotify_service import (
 from app.services.lastfm_service import consultar_artista_lastfm
 from app.services.artist_identity_service import verificar_identidad_con_cache
 
+from app.services.lastfm_cache_service import (
+    obtener_metricas_lastfm_cache,
+    guardar_metricas_lastfm_cache,
+)
+
 
 router = APIRouter(prefix="/postulaciones", tags=["Last.fm"])
 logger = logging.getLogger(__name__)
@@ -73,11 +78,15 @@ async def consultar_lastfm_postulacion(
         ) from exc
 
     try:
-        # Spotify proporciona el nombre del perfil vinculado.
         spotify = await consultar_artista_spotify(spotify_id)
 
-        # Last.fm devuelve las estadísticas del nombre consultado.
-        lastfm = await consultar_artista_lastfm(spotify["nombre"])
+        # Buscar primero estadísticas vigentes en MongoDB.
+        lastfm = await obtener_metricas_lastfm_cache(spotify_id)
+        cache_encontrada = lastfm is not None
+
+        # Si no existen datos vigentes, consultar Last.fm.
+        if not cache_encontrada:
+            lastfm = await consultar_artista_lastfm(spotify["nombre"])
 
     except Exception as exc:
         logger.exception(
@@ -111,6 +120,22 @@ async def consultar_lastfm_postulacion(
 
         identidad_confirmada = False
         estado = "verificacion_no_disponible"
+
+
+    # Guardar estadísticas nuevas solo si la identidad fue verificada.
+    if identidad_confirmada and not cache_encontrada:
+        try:
+            await guardar_metricas_lastfm_cache(
+                spotify_id,
+                lastfm,
+                identidad_confirmada,
+            )
+        except Exception:
+            logger.exception(
+                "HU005: No fue posible guardar la caché de Last.fm "
+                "para la postulación %s",
+                postulacion_id,
+            )
 
     # La coincidencia de nombres no prueba identidad por sí sola.
     return {

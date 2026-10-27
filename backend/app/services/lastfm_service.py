@@ -28,7 +28,15 @@ async def consultar_artista_lastfm(nombre_artista: str) -> dict:
         "autocorrect": 0,
     }
 
-    async with httpx.AsyncClient(timeout=15.0) as client:
+    async with httpx.AsyncClient(
+        timeout=15.0,
+        headers={
+            "User-Agent": (
+                "ForgeAR/1.0 "
+                "(https://github.com/Painkiller-90s/Forge-AR)"
+            )
+        },
+    ) as client:
         respuesta = await client.get(LASTFM_URL, params=params)
         respuesta.raise_for_status()
 
