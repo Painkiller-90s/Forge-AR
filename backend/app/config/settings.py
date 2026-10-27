@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     r2_secret_access_key: str
     r2_bucket_name: str
 
+    #spotify
+    spotify_client_id: str | None = None
+    spotify_client_secret: str | None = None
+
+    #lastfm
+    lastfm_api_key: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
         env_file_encoding="utf-8"
