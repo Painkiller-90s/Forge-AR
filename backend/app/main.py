@@ -9,6 +9,7 @@ from app.routes.postulacion_route import router as postulacion_router
 from app.routes.auditoria_route import router as auditoria_router
 from app.routes.spotify_route import router as spotify_router
 from app.routes.lastfm_route import router as lastfm_router
+from app.routes.instagram_route import router as instagram_router
 
 from app.config.database import (
     connect_to_mongo,
@@ -49,7 +50,7 @@ app.include_router(postulacion_router)
 app.include_router(auditoria_router)
 app.include_router(spotify_router)
 app.include_router(lastfm_router)
-
+app.include_router(instagram_router)
 
 
 @app.get("/")

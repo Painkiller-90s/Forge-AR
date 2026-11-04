@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -27,10 +28,13 @@ class Settings(BaseSettings):
     #lastfm
     lastfm_api_key: str | None = None
 
-    model_config = SettingsConfigDict(
-        env_file=BASE_DIR / ".env",
-        env_file_encoding="utf-8"
-    )
+    #apify
+    apify_api_token: SecretStr | None = None
 
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        hide_input_in_errors=True
+    )
 
 settings = Settings()
