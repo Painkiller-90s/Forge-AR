@@ -11,6 +11,7 @@ from app.services.instagram_service import (
     obtener_metricas_instagram,
 )
 from app.services.metricas_cache_service import guardar_metricas_validas
+from app.services.metricas_cache_service import recuperar_ultimas_metricas
 
 
 router = APIRouter(
@@ -87,17 +88,47 @@ async def consultar_instagram_postulacion(
     try:
         metricas = await obtener_metricas_instagram(instagram_url)
 
+
     except Exception as exc:
-        # Evitar registrar tokens o respuestas completas.
         logger.error(
-            "HU006: Falló la consulta de Instagram para %s. Tipo: %s",
+            "HU007: Falló Instagram para %s. Tipo: %s",
             postulacion_id,
             type(exc).__name__,
         )
-        raise HTTPException(
-            status_code=502,
-            detail="No fue posible obtener las métricas de Instagram.",
-        ) from exc
+
+        # Intentar recuperar las últimas métricas válidas.
+        try:
+            respaldo = await recuperar_ultimas_metricas(
+                postulacion_id=str(postulacion["_id"]),
+                sello_id=sello_id,
+                plataforma="instagram",
+                cuenta_id=usuario_instagram,
+            )
+        except Exception as cache_exc:
+            logger.error(
+                "HU007: Falló la recuperación del respaldo para %s. Tipo: %s",
+                postulacion_id,
+                type(cache_exc).__name__,
+            )
+            raise HTTPException(
+                status_code=502,
+                detail="No fue posible consultar Instagram ni recuperar el respaldo.",
+            ) from cache_exc
+
+        # Sin respaldo disponible, conservar el error original.
+        if respaldo is None:
+            raise HTTPException(
+                status_code=502,
+                detail="No fue posible obtener las métricas de Instagram.",
+            ) from exc
+
+        # Entregar el respaldo sin modificar MongoDB.
+        return {
+            "postulacion_id": str(postulacion["_id"]),
+            "instagram": respaldo,
+            "estado_identidad": "pendiente_verificacion",
+        }
+
 
         # HU007: conservar las últimas métricas válidas.
     try:

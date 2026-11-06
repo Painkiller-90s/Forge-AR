@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timezone
 import re
 from urllib.parse import urlparse
+from app.services.spotify_retry_service import solicitar_spotify_con_reintentos
 
 
 # Cargar las credenciales privadas del backend.
@@ -26,7 +27,9 @@ async def obtener_token_spotify() -> str:
         )
 
     async with httpx.AsyncClient(timeout=15.0) as client:
-        respuesta = await client.post(
+        respuesta = await solicitar_spotify_con_reintentos(
+            client,
+            "POST",
             "https://accounts.spotify.com/api/token",
             auth=(client_id, client_secret),
             data={"grant_type": "client_credentials"},
@@ -54,7 +57,9 @@ async def buscar_artistas_spotify(nombre: str) -> list[dict]:
     token = await obtener_token_spotify()
 
     async with httpx.AsyncClient(timeout=15.0) as client:
-        respuesta = await client.get(
+        respuesta = await solicitar_spotify_con_reintentos(
+            client,
+            "GET",
             "https://api.spotify.com/v1/search",
             headers={
                 "Authorization": f"Bearer {token}",
@@ -90,7 +95,9 @@ async def consultar_artista_spotify(spotify_id: str) -> dict:
     token = await obtener_token_spotify()
 
     async with httpx.AsyncClient(timeout=15.0) as client:
-        respuesta = await client.get(
+        respuesta = await solicitar_spotify_con_reintentos(
+            client,
+            "GET",
             f"https://api.spotify.com/v1/artists/{spotify_id}",
             headers={
                 "Authorization": f"Bearer {token}",
@@ -123,7 +130,9 @@ async def consultar_catalogo_spotify(spotify_id: str) -> dict:
     token = await obtener_token_spotify()
 
     async with httpx.AsyncClient(timeout=15.0) as client:
-        respuesta = await client.get(
+        respuesta = await solicitar_spotify_con_reintentos(
+            client,
+            "GET",
             f"https://api.spotify.com/v1/artists/{spotify_id}/albums",
             headers={
                 "Authorization": f"Bearer {token}",

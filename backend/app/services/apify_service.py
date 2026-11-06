@@ -25,8 +25,12 @@ async def consultar_perfil_instagram(usuario: str) -> dict:
             "El token de Apify no está configurado."
         )
 
-    cliente = ApifyClientAsync(token=token)
-
+    # HU007: máximo 3 intentos por solicitud HTTP a Apify.
+    # Un intento inicial y hasta 2 reintentos automáticos.
+    cliente = ApifyClientAsync(
+        token=token,
+        max_retries=2,
+    )
     # Ejecutar el actor con un único usuario.
     ejecucion = await cliente.actor(ACTOR_ID).call(
         run_input={

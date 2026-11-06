@@ -12,6 +12,10 @@ from app.services.spotify_service import (
     extraer_id_artista_spotify,
 )
 from datetime import datetime, timedelta, timezone
+from app.services.metricas_cache_service import (
+    guardar_metricas_validas,
+    recuperar_ultimas_metricas,
+)
 
 router = APIRouter(prefix="/postulaciones", tags=["Spotify"])
 logger = logging.getLogger(__name__)
@@ -77,22 +81,95 @@ async def consultar_spotify_postulacion(
     try:
         perfil = await consultar_artista_spotify(spotify_id)
         catalogo = await consultar_catalogo_spotify(spotify_id)
+
     except Exception as exc:
-        logger.exception(
-            "HU005: Error consultando Spotify para postulación %s",
+        logger.error(
+            "HU007: Falló Spotify para %s. Tipo: %s",
             postulacion_id,
+            type(exc).__name__,
+        )
+
+        # Recuperar las últimas métricas válidas.
+        try:
+            respaldo = await recuperar_ultimas_metricas(
+                postulacion_id=str(postulacion["_id"]),
+                sello_id=sello_id,
+                plataforma="spotify",
+                cuenta_id=spotify_id,
+            )
+        except Exception as cache_exc:
+            logger.error(
+                "HU007: Falló el respaldo de Spotify para %s. Tipo: %s",
+                postulacion_id,
+                type(cache_exc).__name__,
+            )
+            raise HTTPException(
+                status_code=502,
+                detail="No fue posible consultar Spotify ni recuperar el respaldo.",
+            ) from cache_exc
+
+        # No entregar información inexistente o incompleta.
+        if (
+            not respaldo
+            or not isinstance(respaldo.get("perfil"), dict)
+            or not isinstance(respaldo.get("catalogo"), dict)
+        ):
+            raise HTTPException(
+                status_code=502,
+                detail="No fue posible obtener los datos de Spotify.",
+            ) from exc
+
+        # Entregar las métricas almacenadas.
+        return {
+            "postulacion_id": str(postulacion["_id"]),
+            "spotify_id": spotify_id,
+            "perfil": respaldo["perfil"],
+            "catalogo": respaldo["catalogo"],
+            "fuente": respaldo.get("fuente", "Spotify Web API"),
+            "fecha_obtencion": respaldo.get("fecha_obtencion"),
+            "estado_metricas": "desactualizadas",
+        }
+
+    # HU007: conservar el último resultado válido de Spotify.
+    metricas = {
+        "perfil": perfil,
+        "catalogo": catalogo,
+        "fuente": "Spotify Web API",
+        "fecha_obtencion": perfil["fecha_obtencion"],
+        "estado_metricas": "actualizadas",
+    }
+
+    try:
+        await guardar_metricas_validas(
+            postulacion_id=str(postulacion["_id"]),
+            sello_id=sello_id,
+            plataforma="spotify",
+            cuenta_id=spotify_id,
+            metricas=metricas,
+        )
+    except Exception as exc:
+        logger.error(
+            "HU007: Error guardando métricas de Spotify para %s. Tipo: %s",
+            postulacion_id,
+            type(exc).__name__,
         )
         raise HTTPException(
-            status_code=502,
-            detail="No fue posible obtener los datos de Spotify.",
+            status_code=500,
+            detail="No fue posible guardar las métricas de Spotify.",
         ) from exc
+
+
 
     return {
         "postulacion_id": str(postulacion["_id"]),
         "spotify_id": spotify_id,
         "perfil": perfil,
         "catalogo": catalogo,
+        "fuente": metricas["fuente"],
+        "fecha_obtencion": metricas["fecha_obtencion"],
+        "estado_metricas": "actualizadas",
     }
+
 
 
 @router.post("/{postulacion_id}/spotify/actualizar")
@@ -105,6 +182,17 @@ async def actualizar_spotify_postulacion(
         postulacion_id,
         current_user,
     )
+
+        # HU007: no registrar datos antiguos como una actualización nueva.
+    if datos.get("estado_metricas") == "desactualizadas":
+        return {
+            **datos,
+            "mensaje": (
+                "Spotify no estuvo disponible. "
+                "Se entregan las últimas métricas almacenadas. "
+                "La caché temporal no fue actualizada."
+            ),
+        }
 
     ahora = datetime.now(timezone.utc)
 
