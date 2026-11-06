@@ -10,6 +10,7 @@ from app.services.instagram_service import (
     extraer_usuario_instagram,
     obtener_metricas_instagram,
 )
+from app.services.metricas_cache_service import guardar_metricas_validas
 
 
 router = APIRouter(
@@ -75,7 +76,7 @@ async def consultar_instagram_postulacion(
 
     # Validar antes de consumir créditos de Apify.
     try:
-        extraer_usuario_instagram(instagram_url)
+        usuario_instagram = extraer_usuario_instagram(instagram_url)
     except ValueError as exc:
         raise HTTPException(
             status_code=422,
@@ -96,6 +97,26 @@ async def consultar_instagram_postulacion(
         raise HTTPException(
             status_code=502,
             detail="No fue posible obtener las métricas de Instagram.",
+        ) from exc
+
+        # HU007: conservar las últimas métricas válidas.
+    try:
+        await guardar_metricas_validas(
+            postulacion_id=str(postulacion["_id"]),
+            sello_id=sello_id,
+            plataforma="instagram",
+            cuenta_id=usuario_instagram,
+            metricas=metricas,
+        )
+    except Exception as exc:
+        logger.error(
+            "HU007: Error guardando métricas de Instagram para %s. Tipo: %s",
+            postulacion_id,
+            type(exc).__name__,
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="No fue posible guardar las métricas de Instagram.",
         ) from exc
 
     return {
