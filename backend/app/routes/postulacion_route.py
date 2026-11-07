@@ -10,6 +10,7 @@ from fastapi import (
     File,
     Form,
     HTTPException,
+    Query,
     Request,
     UploadFile,
     status,
@@ -20,10 +21,18 @@ from pydantic import ValidationError
 from app.config.database import database
 from app.models.postulacion_model import postulacion_document
 from app.routes.auth_route import get_current_user
-from app.schemas.postulacion_schema import PostulacionCreate, PostulacionResponse
+from app.schemas.postulacion_schema import (
+    BandejaPostulacionesResponse,
+    PostulacionCreate,
+    PostulacionResponse,
+)
 from app.services.audio_validation_service import validar_audio
 from app.services.file_service import eliminar_demo, guardar_demo, obtener_demo_privada
 from app.services.audit_service import registrar_auditoria
+from app.services.generos_service import (
+    normalizar_generos_sello,
+    obtener_generos_sello,
+)
 
 router = APIRouter(prefix="/postulaciones", tags=["Postulaciones"])
 
@@ -85,6 +94,25 @@ async def crear_postulacion(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=exc.errors(),
+        ) from exc
+
+    # HU011: normalizar géneros antes de almacenar la postulación.
+    try:
+        generos_normalizados = await normalizar_generos_sello(
+            datos_postulacion.generos,
+            sello_id.strip(),
+        )
+
+        datos_postulacion = datos_postulacion.model_copy(
+            update={
+                "generos": generos_normalizados,
+            }
+        )
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
         ) from exc
 
     if not 1 <= len(archivos) <= 3:
@@ -157,6 +185,91 @@ async def crear_postulacion(
 
     return serialize_postulacion(creada)
 
+
+
+# HU011: bandeja de postulaciones del sello.
+@router.get(
+    "/bandeja",
+    response_model=BandejaPostulacionesResponse,
+)
+async def listar_bandeja_postulaciones(
+    generos: list[str] | None = Query(default=None),
+    current_user: dict = Depends(get_current_user),
+):
+    # Solo los evaluadores A&R pueden consultar la bandeja.
+    if current_user.get("role") != "ar":
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permiso para consultar las postulaciones.",
+        )
+
+    # Obtener el sello del usuario autenticado.
+    sello_id = current_user.get("label_id")
+
+    if not isinstance(sello_id, str) or not sello_id.strip():
+        raise HTTPException(
+            status_code=403,
+            detail="El usuario no tiene un sello asignado.",
+        )
+
+    sello_id = sello_id.strip()
+
+    # HU011 CA02: aislamiento obligatorio por sello.
+    filtro = {
+        "sello_id": sello_id,
+    }
+
+    # HU011 CA03: filtrar por uno o varios géneros (OR).
+    if generos:
+        try:
+            generos_filtrados = await normalizar_generos_sello(
+                generos,
+                sello_id,
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=422,
+                detail=str(exc),
+            ) from exc
+
+        filtro["press_kit.generos"] = {
+            "$in": generos_filtrados,
+        }
+
+    # Recuperar las postulaciones más recientes primero.
+    cursor = database.postulaciones.find(filtro).sort(
+        "created_at",
+        -1,
+    )
+
+    documentos = await cursor.to_list(length=None)
+
+    # HU011 CA06: obtener todas las etiquetas utilizadas
+    # en las postulaciones del sello, incluso si hay filtros activos.
+    generos_disponibles = await obtener_generos_sello(sello_id)
+
+    # Construir una respuesta resumida para la bandeja.
+    postulaciones = []
+
+    for documento in documentos:
+        press_kit = documento.get("press_kit") or {}
+
+        postulaciones.append({
+            "id": str(documento["_id"]),
+            "nombre_artistico": press_kit["nombre_artistico"],
+            "pais": press_kit["pais"],
+            "ciudad": press_kit.get("ciudad"),
+            "tipo_proyecto": press_kit["tipo_proyecto"],
+            "generos": press_kit.get("generos", []),
+            "estado": documento["estado"],
+            "created_at": documento["created_at"],
+        })
+
+    return {
+        "postulaciones": postulaciones,
+        "generos_disponibles": generos_disponibles,
+        "total": len(postulaciones),
+    }
 
 
 # HU014: consulta protegida y auditable de una postulación.

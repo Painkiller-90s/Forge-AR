@@ -141,3 +141,24 @@ class PostulacionResponse(BaseModel):
     correo_contacto: EmailStr
     demos: list[DemoResponse]
     estado: str
+
+
+# =========================
+# HU011 - BANDEJA DE POSTULACIONES
+# =========================
+
+class BandejaPostulacionResponse(BaseModel):
+    id: str
+    nombre_artistico: str
+    pais: str
+    ciudad: str | None = None
+    tipo_proyecto: str
+    generos: list[str]
+    estado: str
+    created_at: datetime
+
+
+class BandejaPostulacionesResponse(BaseModel):
+    postulaciones: list[BandejaPostulacionResponse]
+    generos_disponibles: list[str]
+    total: int
