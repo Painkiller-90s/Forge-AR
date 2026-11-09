@@ -1,11 +1,17 @@
+
 import logo from "../assets/forge-ar.svg";
 
-function DashboardSidebar({ user, onLogout }) {
+function DashboardSidebar({
+  user,
+  onLogout,
+  activeView,
+  onNavigate,
+}) {
   const menuItems = [
-    { label: "Resumen", icon: "◫", active: true },
-    { label: "Postulaciones", icon: "♫" },
-    { label: "Análisis", icon: "◇" },
-    { label: "Reportes", icon: "▤" },
+    { id: "resumen", label: "Resumen", icon: "◫" },
+    { id: "postulaciones", label: "Postulaciones", icon: "♫" },
+    { id: "analisis", label: "Análisis", icon: "◇", disabled: true },
+    { id: "reportes", label: "Reportes", icon: "▤", disabled: true },
   ];
 
   return (
@@ -27,10 +33,12 @@ function DashboardSidebar({ user, onLogout }) {
       <nav className="dashboard-nav">
         {menuItems.map((item) => (
           <button
-            key={item.label}
+            key={item.id}
             type="button"
+            disabled={item.disabled}
+            onClick={() => onNavigate(item.id)}
             className={`dashboard-nav-item ${
-              item.active ? "active" : ""
+              activeView === item.id ? "active" : ""
             }`}
           >
             <span className="dashboard-nav-icon">
@@ -47,11 +55,11 @@ function DashboardSidebar({ user, onLogout }) {
         <div className="dashboard-user-mini">
 
           <div className="dashboard-user-avatar">
-            {user?.name?.charAt(0).toUpperCase()}
+            {user?.name?.charAt(0)?.toUpperCase() || "A"}
           </div>
 
           <div className="dashboard-user-mini-info">
-            <strong>{user?.name}</strong>
+            <strong>{user?.name || "Usuario"}</strong>
             <span>A&R</span>
           </div>
 

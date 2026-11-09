@@ -1,0 +1,283 @@
+
+/* =========================
+   HU011 - BANDEJA DE POSTULACIONES
+========================= */
+
+.bandeja-page {
+  width: 100%;
+}
+
+/* HEADER */
+
+.bandeja-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.bandeja-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  letter-spacing: -0.04em;
+}
+
+.bandeja-header p {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.bandeja-refresh {
+  padding: 11px 18px;
+  border: 1px solid rgba(183, 53, 45, 0.3);
+  border-radius: 9px;
+  background: rgba(183, 53, 45, 0.1);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.bandeja-refresh:hover {
+  background: rgba(183, 53, 45, 0.2);
+}
+
+.bandeja-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* FILTROS */
+
+.bandeja-filtros {
+  padding: 24px;
+  margin-bottom: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.bandeja-filtros-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.bandeja-filtros-header h2,
+.bandeja-resultados-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.bandeja-filtros-header p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.bandeja-filtros-header button {
+  border: 0;
+  background: transparent;
+  color: var(--red);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.bandeja-filtros-header button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bandeja-generos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bandeja-genero-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.bandeja-genero-option:has(input:checked) {
+  border-color: rgba(183, 53, 45, 0.5);
+  background: rgba(183, 53, 45, 0.12);
+  color: var(--text);
+}
+
+.bandeja-genero-option input {
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+/* RESULTADOS */
+
+.bandeja-resultados {
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.bandeja-resultados-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.bandeja-resultados-header span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+/* TARJETAS */
+
+.bandeja-lista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.bandeja-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  transition: border-color 0.2s ease;
+}
+
+.bandeja-card:hover {
+  border-color: rgba(183, 53, 45, 0.35);
+}
+
+.bandeja-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.bandeja-card-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.bandeja-estado {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: rgba(183, 53, 45, 0.12);
+  color: var(--red);
+  font-size: 0.68rem;
+  text-transform: capitalize;
+}
+
+.bandeja-ubicacion,
+.bandeja-tipo {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.bandeja-ubicacion {
+  margin: 12px 0 5px;
+}
+
+.bandeja-tipo {
+  margin: 0;
+}
+
+.bandeja-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 17px;
+}
+
+.bandeja-tags span {
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.bandeja-card-footer {
+  margin-top: 18px;
+  padding-top: 13px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.bandeja-card-footer span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+/* ESTADOS */
+
+.bandeja-mensaje,
+.bandeja-vacia {
+  padding: 55px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.bandeja-error {
+  color: #e58b85;
+}
+
+.bandeja-vacia h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.bandeja-vacia p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .bandeja-lista {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .bandeja-header {
+    flex-direction: column;
+  }
+
+  .bandeja-filtros,
+  .bandeja-resultados {
+    padding: 18px;
+  }
+
+  .bandeja-filtros-header {
+    flex-direction: column;
+  }
+
+  .bandeja-card-header {
+    flex-wrap: wrap;
+  }
+}
