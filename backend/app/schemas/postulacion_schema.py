@@ -188,3 +188,12 @@ class BandejaPostulacionesResponse(BaseModel):
     postulaciones: list[BandejaPostulacionResponse]
     generos_disponibles: list[str]
     total: int
+
+# =========================
+# HU012 - TOKEN DE REPRODUCCIÓN
+# =========================
+
+class DemoPlaybackTokenResponse(BaseModel):
+    token: str
+    token_type: str = "Bearer"
+    expires_in: int

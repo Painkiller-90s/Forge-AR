@@ -69,6 +69,15 @@ function AppContent() {
           }
         />
 
+        <Route
+          path="/dashboard/postulaciones/:postulacionId"
+          element={
+            <ProtectedRoute requiredRole="ar">
+              <DashboardAR />
+            </ProtectedRoute>
+          }
+        />
+
 
         <Route
           path="/postulacion/:selloId"

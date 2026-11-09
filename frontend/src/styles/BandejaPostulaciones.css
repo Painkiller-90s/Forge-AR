@@ -220,9 +220,36 @@
 }
 
 .bandeja-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
   margin-top: 18px;
   padding-top: 13px;
+
   border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.bandeja-ver-detalle {
+  padding: 7px 12px;
+
+  border: 1px solid rgba(183, 53, 45, 0.3);
+  border-radius: 7px;
+
+  background: rgba(183, 53, 45, 0.1);
+  color: var(--text);
+
+  font: inherit;
+  font-size: 0.75rem;
+
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.bandeja-ver-detalle:hover {
+  background: rgba(183, 53, 45, 0.22);
 }
 
 .bandeja-card-footer span {

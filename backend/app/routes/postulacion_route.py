@@ -1,6 +1,8 @@
 import asyncio
 import re
+import jwt
 from typing import Annotated
+
 
 from bson import ObjectId
 from botocore.exceptions import ClientError
@@ -23,22 +25,22 @@ from app.models.postulacion_model import postulacion_document
 from app.routes.auth_route import get_current_user
 from app.schemas.postulacion_schema import (
     BandejaPostulacionesResponse,
+    DetallePostulacionResponse,
     PostulacionCreate,
     PostulacionResponse,
+    DemoPlaybackTokenResponse,
 )
 from app.services.audio_validation_service import validar_audio
-from app.services.file_service import eliminar_demo, guardar_demo, obtener_demo_privada
 from app.services.audit_service import registrar_auditoria
+from app.services.file_service import eliminar_demo, guardar_demo, obtener_demo_privada
 from app.services.generos_service import (
     normalizar_generos_sello,
     obtener_generos_sello,
 )
-
-from app.schemas.postulacion_schema import (
-    BandejaPostulacionesResponse,
-    DetallePostulacionResponse,
-    PostulacionCreate,
-    PostulacionResponse,
+from datetime import timedelta
+from app.utils.security import (
+    create_access_token,
+    decode_access_token,
 )
 
 router = APIRouter(prefix="/postulaciones", tags=["Postulaciones"])
@@ -193,7 +195,6 @@ async def crear_postulacion(
     return serialize_postulacion(creada)
 
 
-
 # HU011: bandeja de postulaciones del sello.
 @router.get(
     "/bandeja",
@@ -210,7 +211,6 @@ async def listar_bandeja_postulaciones(
             detail="No tienes permiso para consultar las postulaciones.",
         )
 
-    # Obtener el sello del usuario autenticado.
     sello_id = current_user.get("label_id")
 
     if not isinstance(sello_id, str) or not sello_id.strip():
@@ -221,12 +221,10 @@ async def listar_bandeja_postulaciones(
 
     sello_id = sello_id.strip()
 
-    # HU011 CA02: aislamiento obligatorio por sello.
     filtro = {
         "sello_id": sello_id,
     }
 
-    # HU011 CA03: filtrar por uno o varios géneros (OR).
     if generos:
         try:
             generos_filtrados = await normalizar_generos_sello(
@@ -243,21 +241,15 @@ async def listar_bandeja_postulaciones(
             "$in": generos_filtrados,
         }
 
-    # Recuperar las postulaciones más recientes primero.
     cursor = database.postulaciones.find(filtro).sort(
         "created_at",
         -1,
     )
 
     documentos = await cursor.to_list(length=None)
-
-    # HU011 CA06: obtener todas las etiquetas utilizadas
-    # en las postulaciones del sello, incluso si hay filtros activos.
     generos_disponibles = await obtener_generos_sello(sello_id)
 
-    # Construir una respuesta resumida para la bandeja.
     postulaciones = []
-
     for documento in documentos:
         press_kit = documento.get("press_kit") or {}
 
@@ -288,7 +280,6 @@ async def consultar_postulacion(
     postulacion_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    # Solo el evaluador A&R puede consultar postulaciones.
     if current_user.get("role") != "ar":
         raise HTTPException(
             status_code=403,
@@ -309,7 +300,6 @@ async def consultar_postulacion(
             detail="ID de postulación inválido.",
         )
 
-    # Consultar únicamente postulaciones del sello autorizado.
     postulacion = await database.postulaciones.find_one({
         "_id": ObjectId(postulacion_id),
         "sello_id": sello_id,
@@ -321,12 +311,6 @@ async def consultar_postulacion(
             detail="Postulación no encontrada.",
         )
 
-    # Registrar la consulta antes de entregar la información.
-# Preparar y validar la respuesta antes de registrar el acceso.
-
-
-    # HU012: preparar el detalle completo del artista.
-    # No incluir claves internas de almacenamiento R2.
     respuesta = DetallePostulacionResponse.model_validate({
         **serialize_postulacion(postulacion),
         "press_kit": postulacion["press_kit"],
@@ -352,43 +336,91 @@ async def consultar_postulacion(
 
     return respuesta
 
+
 # HU004: reproducción protegida de demos mediante streaming.
 @router.get("/{postulacion_id}/demos/{archivo_id}/stream")
 async def reproducir_demo(
     postulacion_id: str,
     archivo_id: str,
     request: Request,
-    current_user: dict = Depends(get_current_user),
+    token: str = Query(..., min_length=1),
 ):
-    if current_user.get("role") != "ar":
+    # Validar el token temporal de reproducción.
+    try:
+        payload = decode_access_token(token)
+    except jwt.InvalidTokenError:
         raise HTTPException(
-            status_code=403,
-            detail="No tienes permiso para acceder a las demos.",
+            status_code=401,
+            detail="Token de reproducción inválido o expirado.",
         )
 
-    label_id = current_user.get("label_id")
-    if not label_id:
+    uid = payload.get("uid")
+    sello_id = payload.get("sello_id")
+
+    # Comprobar que el token corresponda exclusivamente
+    # a esta postulación y a esta demo.
+    if (
+        payload.get("purpose") != "demo_stream"
+        or not isinstance(uid, str)
+        or not ObjectId.is_valid(uid)
+        or payload.get("postulacion_id") != postulacion_id
+        or payload.get("archivo_id") != archivo_id
+        or not isinstance(sello_id, str)
+        or not sello_id.strip()
+    ):
         raise HTTPException(
-            status_code=403,
-            detail="El usuario no tiene un sello asignado.",
+            status_code=401,
+            detail="Autorización de reproducción inválida.",
         )
 
+    sello_id = sello_id.strip()
+
+    # Recuperar el usuario y comprobar que siga activo.
+    usuario = await database.users.find_one({
+        "_id": ObjectId(uid)
+    })
+
+    if not usuario:
+        raise HTTPException(
+            status_code=401,
+            detail="Usuario no encontrado.",
+        )
+
+    if not usuario.get("is_active", True):
+        raise HTTPException(
+            status_code=403,
+            detail="Usuario desactivado.",
+        )
+
+    # Comprobar rol y pertenencia al sello.
+    if (
+        usuario.get("role") != "ar"
+        or str(usuario.get("label_id")) != sello_id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permiso para reproducir esta demo.",
+        )
+
+    # Consultar exclusivamente postulaciones del sello autorizado.
     if not ObjectId.is_valid(postulacion_id):
-        raise HTTPException(status_code=400, detail="ID de postulación inválido.")
+        raise HTTPException(
+            status_code=400,
+            detail="ID de postulación inválido.",
+        )
 
     postulacion = await database.postulaciones.find_one({
-        "_id": ObjectId(postulacion_id)
+        "_id": ObjectId(postulacion_id),
+        "sello_id": sello_id,
     })
-    if not postulacion:
-        raise HTTPException(status_code=404, detail="Postulación no encontrada.")
 
-    # Impedir accesos cruzados entre sellos, incluso a usuarios autorizados.
-    if str(label_id) != str(postulacion["sello_id"]):
+    if not postulacion:
         raise HTTPException(
-            status_code=403,
-            detail="No tienes permiso para acceder a esta postulación.",
+            status_code=404,
+            detail="Postulación no encontrada.",
         )
 
+    # Buscar la demo solicitada.
     demo = next(
         (
             item
@@ -397,11 +429,16 @@ async def reproducir_demo(
         ),
         None,
     )
-    if not demo:
-        raise HTTPException(status_code=404, detail="Demo no encontrada.")
+
+    if not demo or not demo.get("storage_key"):
+        raise HTTPException(
+            status_code=404,
+            detail="Demo no encontrada.",
+        )
 
     tamano = demo["tamano_bytes"]
     rango_solicitado = request.headers.get("range")
+
     rango_r2 = None
     inicio = None
     fin = None
@@ -413,16 +450,18 @@ async def reproducir_demo(
             headers={"Content-Range": f"bytes */{tamano}"},
         )
 
-    # HTTP Range permite reproducir y avanzar por el audio sin descargarlo completo.
+    # Procesamiento de solicitudes HTTP Range.
     if rango_solicitado is not None:
         coincidencia = re.fullmatch(
             r"bytes=(\d*)-(\d*)",
             rango_solicitado.strip(),
         )
+
         if not coincidencia or tamano <= 0:
             rango_invalido()
 
         inicio_texto, fin_texto = coincidencia.groups()
+
         if not inicio_texto and not fin_texto:
             rango_invalido()
 
@@ -433,9 +472,10 @@ async def reproducir_demo(
 
             if inicio >= tamano or fin < inicio:
                 rango_invalido()
+
         else:
-            # Rangos de sufijo: bytes=-1024 (últimos 1024 bytes).
             cantidad = int(fin_texto)
+
             if cantidad <= 0:
                 rango_invalido()
 
@@ -444,10 +484,16 @@ async def reproducir_demo(
 
         rango_r2 = f"bytes={inicio}-{fin}"
 
+    # Recuperar el archivo privado desde Cloudflare R2.
     try:
-        objeto = await obtener_demo_privada(demo["storage_key"], rango_r2)
+        objeto = await obtener_demo_privada(
+            demo["storage_key"],
+            rango_r2,
+        )
+
     except ClientError as exc:
         codigo = exc.response.get("Error", {}).get("Code")
+
         if codigo in ("NoSuchKey", "404"):
             raise HTTPException(
                 status_code=404,
@@ -458,6 +504,7 @@ async def reproducir_demo(
             status_code=502,
             detail="No fue posible obtener la demo desde R2.",
         ) from exc
+
     except Exception as exc:
         raise HTTPException(
             status_code=502,
@@ -466,45 +513,45 @@ async def reproducir_demo(
 
     cuerpo = objeto["Body"]
 
-
-    # Registrar auditoría antes de entregar audio.
-    # Si falla el registro, se impide el acceso a la demo.
+    # Registrar auditoría antes de entregar el audio.
     try:
         await registrar_auditoria(
-            usuario=current_user,
-            sello_id=postulacion["sello_id"],
+            usuario=usuario,
+            sello_id=sello_id,
             postulacion_id=str(postulacion["_id"]),
             recurso="demo",
             recurso_id=archivo_id,
             accion="ACCESO_DEMO_AUTORIZADO",
             metodo="stream",
         )
+
     except Exception as exc:
         await asyncio.to_thread(cuerpo.close)
+
         raise HTTPException(
             status_code=500,
             detail="No fue posible registrar el acceso.",
         ) from exc
 
-    except Exception as exc:
-        await asyncio.to_thread(cuerpo.close)
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible registrar el acceso.",
-        ) from exc
-
+    # Transmitir el audio progresivamente.
     async def transmitir_audio():
         try:
             while True:
-                fragmento = await asyncio.to_thread(cuerpo.read, 1024 * 1024)
+                fragmento = await asyncio.to_thread(
+                    cuerpo.read,
+                    1024 * 1024,
+                )
+
                 if not fragmento:
                     break
+
                 yield fragmento
+
         finally:
-            # Liberar el flujo de R2, incluso si se interrumpe la reproducción.
             await asyncio.to_thread(cuerpo.close)
 
     formato = demo["formato"]
+
     mime_type = {
         "mp3": "audio/mpeg",
         "flac": "audio/flac",
@@ -518,12 +565,20 @@ async def reproducir_demo(
     }
 
     codigo_http = 200
+
     if rango_r2 is not None:
         codigo_http = 206
-        headers["Content-Range"] = f"bytes {inicio}-{fin}/{tamano}"
+
+        headers["Content-Range"] = (
+            f"bytes {inicio}-{fin}/{tamano}"
+        )
+
         headers["Content-Length"] = str(fin - inicio + 1)
+
     else:
-        headers["Content-Length"] = str(objeto["ContentLength"])
+        headers["Content-Length"] = str(
+            objeto["ContentLength"]
+        )
 
     return StreamingResponse(
         transmitir_audio(),
@@ -531,3 +586,83 @@ async def reproducir_demo(
         media_type=mime_type,
         headers=headers,
     )
+
+
+# HU012: generar autorización temporal para reproducir una demo.
+@router.post(
+    "/{postulacion_id}/demos/{archivo_id}/playback-token",
+    response_model=DemoPlaybackTokenResponse,
+)
+async def generar_token_reproduccion_demo(
+    postulacion_id: str,
+    archivo_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    # Solo los evaluadores A&R pueden reproducir demos.
+    if current_user.get("role") != "ar":
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permiso para reproducir demos.",
+        )
+
+    sello_id = current_user.get("label_id")
+
+    if not isinstance(sello_id, str) or not sello_id.strip():
+        raise HTTPException(
+            status_code=403,
+            detail="El usuario no tiene un sello asignado.",
+        )
+
+    sello_id = sello_id.strip()
+
+    if not ObjectId.is_valid(postulacion_id):
+        raise HTTPException(
+            status_code=400,
+            detail="ID de postulación inválido.",
+        )
+
+    # Comprobar que la postulación pertenece al sello.
+    postulacion = await database.postulaciones.find_one({
+        "_id": ObjectId(postulacion_id),
+        "sello_id": sello_id,
+    })
+
+    if not postulacion:
+        raise HTTPException(
+            status_code=404,
+            detail="Postulación no encontrada.",
+        )
+
+    # Comprobar que la demo existe y tiene almacenamiento asociado.
+    demo = next(
+        (
+            item
+            for item in postulacion.get("demos", [])
+            if item.get("archivo_id") == archivo_id
+        ),
+        None,
+    )
+
+    if not demo or not demo.get("storage_key"):
+        raise HTTPException(
+            status_code=404,
+            detail="Demo no encontrada.",
+        )
+
+    # Crear token limitado a esta demo y postulación.
+    token = create_access_token(
+        {
+            "uid": str(current_user["_id"]),
+            "purpose": "demo_stream",
+            "sello_id": sello_id,
+            "postulacion_id": postulacion_id,
+            "archivo_id": archivo_id,
+        },
+        expires_delta=timedelta(minutes=30),
+    )
+
+    return {
+        "token": token,
+        "token_type": "Bearer",
+        "expires_in": 1800,
+    }

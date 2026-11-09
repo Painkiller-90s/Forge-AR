@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import api from "../api/axios";
 import "../styles/BandejaPostulaciones.css";
+import { useNavigate } from "react-router-dom";
 
 function BandejaPostulaciones() {
   const [bandeja, setBandeja] = useState({
@@ -15,6 +16,7 @@ function BandejaPostulaciones() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [recargar, setRecargar] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let activo = true;
@@ -256,6 +258,16 @@ function BandejaPostulaciones() {
                   <span>
                     Recibida: {formatearFecha(postulacion.created_at)}
                   </span>
+
+                  <button
+                    type="button"
+                    className="bandeja-ver-detalle"
+                    onClick={() =>
+                      navigate(`/dashboard/postulaciones/${postulacion.id}`)
+                    }
+                  >
+                    Ver detalle →
+                  </button>
                 </div>
 
               </article>

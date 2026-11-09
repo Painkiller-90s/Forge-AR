@@ -7,6 +7,7 @@ import "../styles/DashboardAR.css";
 
 import DashboardSidebar from "../components/DashboardSidebar";
 import BandejaPostulaciones from "./BandejaPostulaciones";
+import DetallePostulacion from "./DetallePostulacion";
 
 function DashboardAR() {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ function DashboardAR() {
 
   const esBandeja =
     location.pathname === "/dashboard/postulaciones";
+
+  const esDetallePostulacion =
+    location.pathname.startsWith("/dashboard/postulaciones/");
 
   useEffect(() => {
     let activo = true;
@@ -108,7 +112,9 @@ function DashboardAR() {
           user={user}
           onLogout={handleLogout}
           activeView={
-            esBandeja ? "postulaciones" : "resumen"
+            esBandeja || esDetallePostulacion
+              ? "postulaciones"
+              : "resumen"
           }
           onNavigate={handleNavigate}
         />
@@ -118,6 +124,10 @@ function DashboardAR() {
           {esBandeja ? (
 
             <BandejaPostulaciones />
+
+          ) : esDetallePostulacion ? (
+
+            <DetallePostulacion />
 
           ) : (
 
