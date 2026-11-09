@@ -34,6 +34,13 @@ from app.services.generos_service import (
     obtener_generos_sello,
 )
 
+from app.schemas.postulacion_schema import (
+    BandejaPostulacionesResponse,
+    DetallePostulacionResponse,
+    PostulacionCreate,
+    PostulacionResponse,
+)
+
 router = APIRouter(prefix="/postulaciones", tags=["Postulaciones"])
 
 
@@ -275,7 +282,7 @@ async def listar_bandeja_postulaciones(
 # HU014: consulta protegida y auditable de una postulación.
 @router.get(
     "/{postulacion_id}",
-    response_model=PostulacionResponse,
+    response_model=DetallePostulacionResponse,
 )
 async def consultar_postulacion(
     postulacion_id: str,
@@ -316,9 +323,17 @@ async def consultar_postulacion(
 
     # Registrar la consulta antes de entregar la información.
 # Preparar y validar la respuesta antes de registrar el acceso.
-    respuesta = PostulacionResponse.model_validate(
-        serialize_postulacion(postulacion)
-    )
+
+
+    # HU012: preparar el detalle completo del artista.
+    # No incluir claves internas de almacenamiento R2.
+    respuesta = DetallePostulacionResponse.model_validate({
+        **serialize_postulacion(postulacion),
+        "press_kit": postulacion["press_kit"],
+        "created_at": postulacion["created_at"],
+        "updated_at": postulacion["updated_at"],
+    })
+
     try:
         await registrar_auditoria(
             usuario=current_user,

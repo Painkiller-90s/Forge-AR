@@ -143,6 +143,32 @@ class PostulacionResponse(BaseModel):
     estado: str
 
 
+
+# =========================
+# HU012 - DETALLE DEL PRESS KIT
+# =========================
+
+class PressKitResponse(BaseModel):
+    nombre_artistico: str
+    correo_contacto: EmailStr
+    pais: str
+    ciudad: str | None = None
+    tipo_proyecto: str
+    generos: list[str] = Field(default_factory=list)
+    integrantes: list[str] = Field(default_factory=list)
+    biografia: str
+    anio_inicio: int | None = None
+    spotify_url: str | None = None
+    instagram_url: str | None = None
+    mensaje_sello: str | None = None
+
+
+class DetallePostulacionResponse(PostulacionResponse):
+    press_kit: PressKitResponse
+    created_at: datetime
+    updated_at: datetime
+
+
 # =========================
 # HU011 - BANDEJA DE POSTULACIONES
 # =========================
