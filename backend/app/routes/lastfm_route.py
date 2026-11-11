@@ -1,3 +1,4 @@
+
 import logging
 
 from bson import ObjectId
@@ -5,16 +6,28 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.config.database import database
 from app.routes.auth_route import get_current_user
+
 from app.services.spotify_service import (
     consultar_artista_spotify,
     extraer_id_artista_spotify,
 )
-from app.services.lastfm_service import consultar_artista_lastfm
-from app.services.artist_identity_service import verificar_identidad_con_cache
+
+from app.services.lastfm_service import (
+    ArtistaLastFMNoEncontrado,
+    consultar_artista_lastfm,
+)
 
 from app.services.lastfm_cache_service import (
     obtener_metricas_lastfm_cache,
     guardar_metricas_lastfm_cache,
+)
+
+from app.services.artist_identity_service import (
+    verificar_identidad_con_cache,
+)
+
+from app.services.viability_service import (
+    calcular_q_streaming,
 )
 
 
@@ -48,7 +61,7 @@ async def consultar_lastfm_postulacion(
             detail="ID de postulación inválido.",
         )
 
-    # Evitar consultar postulaciones de otros sellos.
+    # Consultar únicamente postulaciones del sello autorizado.
     postulacion = await database.postulaciones.find_one({
         "_id": ObjectId(postulacion_id),
         "sello_id": sello_id,
@@ -69,60 +82,86 @@ async def consultar_lastfm_postulacion(
             detail="La postulación no tiene un enlace de Spotify.",
         )
 
+    # Extraer identificador del artista de Spotify.
     try:
         spotify_id = extraer_id_artista_spotify(spotify_url)
+
     except ValueError as exc:
         raise HTTPException(
             status_code=422,
             detail="El enlace de Spotify no es válido.",
         ) from exc
 
+    # Obtener información de Spotify y estadísticas de Last.fm.
     try:
         spotify = await consultar_artista_spotify(spotify_id)
 
-        # Buscar primero estadísticas vigentes en MongoDB.
+        # Consultar primero la caché de MongoDB.
         lastfm = await obtener_metricas_lastfm_cache(spotify_id)
-        cache_encontrada = lastfm is not None
 
-        # Si no existen datos vigentes, consultar Last.fm.
+        cache_encontrada = lastfm is not None
+        perfil_encontrado = True
+
+        # Si no hay caché vigente, consultar Last.fm.
         if not cache_encontrada:
-            lastfm = await consultar_artista_lastfm(spotify["nombre"])
+            try:
+                lastfm = await consultar_artista_lastfm(
+                    spotify["nombre"]
+                )
+
+            except ArtistaLastFMNoEncontrado:
+                logger.info(
+                    "HU008: Artista no encontrado en Last.fm para %s",
+                    postulacion_id,
+                )
+
+                lastfm = None
+                perfil_encontrado = False
 
     except Exception as exc:
         logger.exception(
-            "HU005: Error al consultar métricas para %s",
+            "HU008: Error al consultar métricas para %s",
             postulacion_id,
         )
+
         raise HTTPException(
             status_code=502,
             detail="No fue posible consultar las métricas externas.",
         ) from exc
 
-    # Verificar correspondencia entre Last.fm y Spotify.
-    try:
-        identidad_confirmada = await verificar_identidad_con_cache(
-            lastfm.get("mbid"),
-            spotify_id,
-        )
+    # Verificar identidad solamente cuando existe un perfil.
+    identidad_confirmada = False
 
-        estado = (
-            "verificada"
-            if identidad_confirmada
-            else "pendiente_verificacion"
-        )
+    if perfil_encontrado:
+        try:
+            identidad_confirmada = (
+                await verificar_identidad_con_cache(
+                    lastfm.get("mbid"),
+                    spotify_id,
+                )
+            )
 
-    except Exception:
-        logger.exception(
-            "HU005: No fue posible verificar la identidad en MusicBrainz "
-            "para la postulación %s",
-            postulacion_id,
-        )
+            estado = (
+                "verificada"
+                if identidad_confirmada
+                else "pendiente_verificacion"
+            )
 
-        identidad_confirmada = False
-        estado = "verificacion_no_disponible"
+        except Exception:
+            logger.exception(
+                "HU008: No fue posible verificar la identidad "
+                "del artista para la postulación %s",
+                postulacion_id,
+            )
 
+            identidad_confirmada = False
+            estado = "verificacion_no_disponible"
 
-    # Guardar estadísticas nuevas solo si la identidad fue verificada.
+    else:
+        estado = "perfil_no_encontrado"
+
+    # Guardar estadísticas nuevas únicamente si la identidad
+    # fue confirmada.
     if identidad_confirmada and not cache_encontrada:
         try:
             await guardar_metricas_lastfm_cache(
@@ -130,22 +169,35 @@ async def consultar_lastfm_postulacion(
                 lastfm,
                 identidad_confirmada,
             )
+
         except Exception:
             logger.exception(
-                "HU005: No fue posible guardar la caché de Last.fm "
+                "HU008: No fue posible guardar la caché de Last.fm "
                 "para la postulación %s",
                 postulacion_id,
             )
 
-    # La coincidencia de nombres no prueba identidad por sí sola.
+    # Calcular Q_streaming utilizando la rúbrica de viabilidad.
+    q_streaming = calcular_q_streaming(
+        metricas=lastfm,
+        identidad_confirmada=identidad_confirmada,
+        perfil_encontrado=perfil_encontrado,
+    )
+
     return {
         "postulacion_id": postulacion_id,
+
         "spotify": {
             "id": spotify_id,
             "nombre": spotify["nombre"],
             "url": spotify["url"],
         },
+
         "lastfm": lastfm,
+
+        "perfil_encontrado": perfil_encontrado,
         "identidad_confirmada": identidad_confirmada,
-        "estado": estado,   
+        "estado": estado,
+
+        "q_streaming": q_streaming,
     }

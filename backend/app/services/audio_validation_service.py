@@ -174,6 +174,7 @@ def validar_decodificacion(
 # ANALIZAR ARCHIVO
 # =========================
 
+
 def calcular_q_audio(
     formato: str,
     sample_rate_hz: int,
@@ -181,27 +182,35 @@ def calcular_q_audio(
     bits_per_sample: int | None,
 ) -> int:
     """
-    Calcula el puntaje técnico Q_audio entre 0 y 100.
+    Calcula el puntaje técnico Q_audio de una demo
+    entre 0 y 100.
 
     El puntaje considera:
-    - 40 % frecuencia de muestreo.
-    - 60 % calidad de codificación/resolución.
+    - Formato y resolución: puntaje base.
+    - Frecuencia de muestreo: bonificación.
 
-    Solo debe ejecutarse para archivos que ya hayan
-    superado las validaciones técnicas mínimas.
+    Solo se evalúan archivos que cumplen las
+    validaciones técnicas mínimas.
+
+    Los canales no intervienen en el cálculo.
     """
 
+    formato = formato.strip().lower()
+
     # =========================
-    # SAMPLE RATE - 40 %
+    # FRECUENCIA DE MUESTREO
     # =========================
+
+    if sample_rate_hz < MIN_SAMPLE_RATE:
+        raise ValueError(
+            "La frecuencia de muestreo no cumple "
+            "el mínimo requerido."
+        )
 
     if sample_rate_hz >= 48000:
-        puntaje_sample_rate = 100
+        bonificacion_frecuencia = 15
     else:
-        # A esta función solo deberían llegar
-        # archivos con mínimo 44.100 Hz.
-        puntaje_sample_rate = 90
-
+        bonificacion_frecuencia = 10
 
     # =========================
     # MP3
@@ -215,18 +224,20 @@ def calcular_q_audio(
                 "sin el bitrate del MP3."
             )
 
-        if bitrate_bps >= 320000:
-            puntaje_resolucion = 100
+        if bitrate_bps < MIN_MP3_BITRATE:
+            raise ValueError(
+                "El bitrate del MP3 no cumple "
+                "el mínimo requerido."
+            )
 
-        elif bitrate_bps >= 256000:
-            puntaje_resolucion = 90
+        if bitrate_bps >= 320000:
+            puntaje_base = 70
 
         elif bitrate_bps >= 192000:
-            puntaje_resolucion = 75
+            puntaje_base = 55
 
         else:
-            puntaje_resolucion = 60
-
+            puntaje_base = 40
 
     # =========================
     # FLAC
@@ -240,29 +251,34 @@ def calcular_q_audio(
                 "sin la profundidad de bits del FLAC."
             )
 
-        if bits_per_sample >= 24:
-            puntaje_resolucion = 100
-        else:
-            puntaje_resolucion = 95
+        if bits_per_sample < MIN_FLAC_BITS_PER_SAMPLE:
+            raise ValueError(
+                "La profundidad de bits del FLAC "
+                "no cumple el mínimo requerido."
+            )
 
+        if bits_per_sample >= 24:
+            puntaje_base = 85
+
+        else:
+            puntaje_base = 75
 
     else:
         raise ValueError(
             "Formato no compatible con Q_audio."
         )
 
-
     # =========================
     # PUNTAJE FINAL
     # =========================
 
-    q_audio = round(
-        (puntaje_sample_rate * 0.40)
-        +
-        (puntaje_resolucion * 0.60)
+    q_audio = min(
+        100,
+        puntaje_base + bonificacion_frecuencia
     )
 
     return q_audio
+
 
 def analizar_archivo_tecnico(
     ruta_archivo: Path,
