@@ -168,10 +168,19 @@ async def consultar_catalogo_spotify(spotify_id: str) -> dict:
     }
 
 
-def extraer_id_artista_spotify(spotify_url: str) -> str:
-    """Extrae y valida el ID de un perfil de artista de Spotify."""
 
-    if not spotify_url or not isinstance(spotify_url, str):
+def extraer_id_artista_spotify(spotify_url: str) -> str:
+    """
+    Extrae y valida el ID de un artista de Spotify.
+
+    Admite enlaces normales y regionales:
+    - /artist/ID
+    - /intl-es/artist/ID
+
+    También admite parámetros de consulta como ?si=...
+    """
+
+    if not isinstance(spotify_url, str) or not spotify_url.strip():
         raise ValueError("No se proporcionó un enlace de Spotify.")
 
     url = urlparse(spotify_url.strip())
@@ -180,6 +189,18 @@ def extraer_id_artista_spotify(spotify_url: str) -> str:
         raise ValueError("El enlace no corresponde a Spotify.")
 
     partes = url.path.strip("/").split("/")
+
+    # Spotify puede agregar un prefijo regional al enlace.
+    # Ejemplo: /intl-es/artist/ID
+    if (
+        len(partes) == 3
+        and re.fullmatch(
+            r"intl-[a-z]{2}(?:-[a-z]{2})?",
+            partes[0],
+            flags=re.IGNORECASE,
+        )
+    ):
+        partes = partes[1:]
 
     if (
         len(partes) != 2
@@ -191,4 +212,3 @@ def extraer_id_artista_spotify(spotify_url: str) -> str:
         )
 
     return partes[1]
-
