@@ -11,6 +11,7 @@ from app.routes.spotify_route import router as spotify_router
 from app.routes.lastfm_route import router as lastfm_router
 from app.routes.instagram_route import router as instagram_router
 from app.routes.viabilidad_route import router as viabilidad_router
+from app.routes.evaluacion_route import router as evaluacion_router
 
 from app.config.database import (
     connect_to_mongo,
@@ -53,6 +54,7 @@ app.include_router(spotify_router)
 app.include_router(lastfm_router)
 app.include_router(instagram_router)
 app.include_router(viabilidad_router)
+app.include_router(evaluacion_router)
 
 
 @app.get("/")

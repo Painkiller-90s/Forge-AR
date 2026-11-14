@@ -730,6 +730,12 @@ def calcular_q_consistencia(
     ):
         fuentes_desactualizadas.append("instagram")
 
+    if (
+        isinstance(metricas_lastfm, dict)
+        and metricas_lastfm.get("estado_metricas")
+        == "desactualizadas"
+    ):
+        fuentes_desactualizadas.append("lastfm")
     evaluable = not faltantes
 
     return {

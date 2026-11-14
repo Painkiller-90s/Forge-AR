@@ -74,3 +74,65 @@ async def guardar_metricas_lastfm_cache(
         },
         upsert=True,
     )
+
+
+async def recuperar_ultimas_metricas_lastfm_cache(
+    spotify_id: str,
+) -> dict | None:
+    """
+    Recupera las últimas métricas de Last.fm aunque
+    su vigencia haya expirado.
+
+    Se utiliza exclusivamente como respaldo cuando
+    Last.fm no está disponible.
+
+    La identidad deberá verificarse nuevamente
+    antes de utilizar las métricas en Q_streaming.
+    """
+
+    if not spotify_id:
+        return None
+
+    registro = await database.lastfm_cache.find_one({
+        "_id": spotify_id,
+    })
+
+    if not isinstance(registro, dict):
+        return None
+
+    campos = (
+        "nombre",
+        "mbid",
+        "url",
+        "oyentes_acumulados",
+        "reproducciones_acumuladas",
+        "fuente",
+        "fecha_obtencion",
+    )
+
+    metricas = {
+        campo: registro[campo]
+        for campo in campos
+        if campo in registro
+    }
+
+    # No utilizar respaldos incompletos o sin MBID.
+    campos_obligatorios = (
+        "nombre",
+        "mbid",
+        "oyentes_acumulados",
+        "reproducciones_acumuladas",
+        "fuente",
+        "fecha_obtencion",
+    )
+
+    if not all(
+        metricas.get(campo) is not None
+        for campo in campos_obligatorios
+    ):
+        return None
+
+    # Identificar que se están utilizando datos históricos.
+    metricas["estado_metricas"] = "desactualizadas"
+
+    return metricas
