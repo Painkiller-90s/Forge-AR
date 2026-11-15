@@ -7,6 +7,7 @@ from app.routes.auth_route import get_current_user
 from app.utils.evaluacion_response import (
     serializar_datos_utilizados,
 )
+from datetime import datetime, timezone
 
 
 router = APIRouter(
@@ -59,6 +60,20 @@ async def consultar_viabilidad_postulacion(
             detail="No existe una evaluación generada para esta postulación.",
         )
 
+    # Normalizar la fecha recuperada desde MongoDB a UTC.
+    fecha_generacion = reporte.get("fecha_generacion")
+
+    if isinstance(fecha_generacion, datetime):
+
+        if fecha_generacion.tzinfo is None:
+            fecha_generacion = fecha_generacion.replace(
+                tzinfo=timezone.utc
+            )
+        else:
+            fecha_generacion = fecha_generacion.astimezone(
+                timezone.utc
+            )
+
     # 4. Preparar información de viabilidad.
     viabilidad = reporte.get("viabilidad") or {}
 
@@ -66,7 +81,7 @@ async def consultar_viabilidad_postulacion(
     return {
         "evaluacion_id": str(reporte["_id"]),
         "postulacion_id": reporte["postulacion_id"],
-        "fecha_generacion": reporte.get("fecha_generacion"),
+        "fecha_generacion": fecha_generacion,
         "estado": (
             reporte.get("estado")
             or viabilidad.get("estado")

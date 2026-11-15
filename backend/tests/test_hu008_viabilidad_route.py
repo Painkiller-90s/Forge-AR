@@ -333,6 +333,42 @@ class TestHU008ViabilidadRoute(
         )
 
         base.evaluaciones.find_one.assert_not_awaited()
+    
+    async def test_fecha_generacion_naive_se_normaliza_utc(self):
+
+        reporte = self.crear_reporte()
+
+        # Simular la fecha recuperada desde MongoDB.
+        reporte["fecha_generacion"] = datetime(
+            2026, 11, 15, 1, 56, 30
+        )
+
+        base = self.crear_database(reporte)
+
+        with patch.object(
+            viabilidad_route,
+            "database",
+            base,
+        ):
+            resultado = await (
+                viabilidad_route.consultar_viabilidad_postulacion(
+                    POSTULACION_ID,
+                    current_user=USUARIO_AR,
+                )
+            )
+
+        fecha = resultado["fecha_generacion"]
+
+        self.assertIsNotNone(fecha.tzinfo)
+
+        self.assertEqual(
+            fecha.utcoffset().total_seconds(),
+            0,
+        )
+
+        self.assertTrue(
+            fecha.isoformat().endswith("+00:00")
+        )
 
 
 if __name__ == "__main__":

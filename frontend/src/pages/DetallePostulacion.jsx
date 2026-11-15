@@ -65,6 +65,262 @@ function Campo({ etiqueta, valor }) {
   );
 }
 
+function formatearPuntaje(valor) {
+  if (typeof valor !== "number") {
+    return "No evaluable";
+  }
+
+  return `${valor.toLocaleString("es-CL", {
+    maximumFractionDigits: 2,
+  })}/100`;
+}
+
+function formatearEtiqueta(clave) {
+  const etiquetas = {
+    puntaje_audiencia: "Puntaje de audiencia",
+    puntaje_fidelidad: "Puntaje de fidelidad",
+    ratio_reproducciones_oyente: "Reproducciones por oyente",
+    puntaje_likes: "Puntaje de likes",
+    puntaje_comentarios: "Puntaje de comentarios",
+    likes_promedio: "Promedio de likes",
+    comentarios_promedio: "Promedio de comentarios",
+    tasa_likes_pct: "Tasa de likes",
+    tasa_comentarios_pct: "Tasa de comentarios",
+    seguidores: "Seguidores",
+    publicaciones_evaluadas: "Publicaciones evaluadas",
+    caracteres_biografia: "Caracteres de biografía",
+    nombre_artistico: "Nombre artístico",
+    correo_contacto: "Correo de contacto",
+    tipo_proyecto: "Tipo de proyecto",
+    spotify_enlace: "Enlace de Spotify",
+    identidad_musicbrainz: "Identidad MusicBrainz",
+    instagram_enlace: "Enlace de Instagram",
+    fuentes_fechas: "Vigencia de fuentes",
+    demos_trazables: "Demos trazables",
+  };
+
+  return etiquetas[clave] || clave.replaceAll("_", " ");
+}
+
+function formatearValor(valor) {
+  if (valor === null || valor === undefined) {
+    return "No disponible";
+  }
+
+  if (typeof valor === "boolean") {
+    return valor ? "Sí" : "No";
+  }
+
+  if (Array.isArray(valor)) {
+    return valor.join(", ");
+  }
+
+  if (typeof valor === "number") {
+    return valor.toLocaleString("es-CL", {
+      maximumFractionDigits: 2,
+    });
+  }
+
+  return String(valor);
+}
+
+function obtenerTextoScore(score, estadoEvaluacion) {
+  if (typeof score === "number") {
+    return `${score.toLocaleString("es-CL", {
+      maximumFractionDigits: 2,
+    })}/100`;
+  }
+
+  if (estadoEvaluacion === "no_evaluable") {
+    return "No evaluable";
+  }
+
+  return "No disponible";
+}
+
+function obtenerTextoRiesgo(nivelRiesgo, estadoEvaluacion) {
+  if (nivelRiesgo) {
+    return nivelRiesgo;
+  }
+
+  if (estadoEvaluacion === "no_evaluable") {
+    return "Sin clasificación";
+  }
+
+  return "No disponible";
+}
+
+function obtenerTextoEstado(estadoEvaluacion) {
+  if (estadoEvaluacion === "evaluable") {
+    return "Evaluable";
+  }
+
+  if (estadoEvaluacion === "no_evaluable") {
+    return "No evaluable";
+  }
+
+  return "Sin estado";
+}
+
+function obtenerClaseEstado(estadoEvaluacion) {
+  return estadoEvaluacion === "evaluable"
+    ? "reporte-texto-ok"
+    : "reporte-texto-error";
+}
+
+function formatearNombreDimension(dimension) {
+  const etiquetas = {
+    q_audio: "Q_audio",
+    q_streaming: "Q_streaming",
+    q_rrss: "Q_RRSS",
+    q_presskit: "Q_presskit",
+    q_consistencia: "Q_consistencia",
+  };
+
+  return etiquetas[dimension] || dimension;
+}
+
+function DimensionEvaluacion({
+  titulo,
+  descripcion,
+  dimension,
+  clavePuntaje,
+}) {
+  const puntaje =
+    typeof dimension === "number"
+      ? dimension
+      : dimension?.[clavePuntaje];
+
+  const desglose = dimension?.desglose || {};
+
+  const camposExcluidos = [
+    clavePuntaje,
+    "estado",
+    "desglose",
+    "criterios_no_evaluables",
+    "fuentes_desactualizadas",
+    "campos_obligatorios_faltantes",
+    "fuente",
+    "fecha_obtencion",
+    "estado_metricas",
+  ];
+
+  const detalles =
+    dimension && typeof dimension === "object"
+      ? Object.entries(dimension).filter(
+          ([clave, valor]) =>
+            !camposExcluidos.includes(clave) &&
+            valor !== null &&
+            valor !== undefined
+        )
+      : [];
+
+  const criteriosNoEvaluables =
+    dimension?.criterios_no_evaluables || [];
+
+  const fuentesDesactualizadas =
+    dimension?.fuentes_desactualizadas || [];
+
+  const camposFaltantes =
+    dimension?.campos_obligatorios_faltantes || [];
+
+  return (
+    <article className="reporte-dimension">
+
+      <div className="reporte-dimension-header">
+        <div>
+          <h3>{titulo}</h3>
+          <p>{descripcion}</p>
+        </div>
+
+        <strong className="reporte-dimension-puntaje">
+          {formatearPuntaje(puntaje)}
+        </strong>
+      </div>
+
+      {dimension?.estado && (
+        <span
+          className={`reporte-dimension-estado ${
+            dimension.estado === "evaluable"
+              ? "reporte-estado-ok"
+              : "reporte-estado-error"
+          }`}
+        >
+          {dimension.estado === "evaluable"
+            ? "Evaluable"
+            : "No evaluable"}
+        </span>
+      )}
+
+      {Object.keys(desglose).length > 0 && (
+        <div className="reporte-desglose">
+          <h4>Desglose del puntaje</h4>
+
+          {Object.entries(desglose).map(([clave, valor]) => (
+            <div className="reporte-desglose-item" key={clave}>
+              <span>{formatearEtiqueta(clave)}</span>
+              <strong>{formatearValor(valor)}</strong>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {detalles.length > 0 && (
+        <div className="reporte-desglose">
+          <h4>Indicadores</h4>
+
+          {detalles.map(([clave, valor]) => (
+            <div className="reporte-desglose-item" key={clave}>
+              <span>{formatearEtiqueta(clave)}</span>
+              <strong>
+                {formatearValor(valor)}
+                {clave.endsWith("_pct") ? "%" : ""}
+              </strong>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {criteriosNoEvaluables.length > 0 && (
+        <div className="reporte-advertencia">
+          <strong>Criterios sin evaluar</strong>
+
+          <ul>
+            {criteriosNoEvaluables.map((criterio, index) => (
+              <li key={index}>{formatearEtiqueta(criterio)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {camposFaltantes.length > 0 && (
+        <div className="reporte-advertencia">
+          <strong>Campos obligatorios faltantes</strong>
+
+          <ul>
+            {camposFaltantes.map((campo, index) => (
+              <li key={index}>{formatearEtiqueta(campo)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {fuentesDesactualizadas.length > 0 && (
+        <div className="reporte-advertencia">
+          <strong>Fuentes desactualizadas</strong>
+
+          <ul>
+            {fuentesDesactualizadas.map((fuente, index) => (
+              <li key={index}>{formatearValor(fuente)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+    </article>
+  );
+}
+
 function DetallePostulacion() {
   const { postulacionId } = useParams();
   const navigate = useNavigate();
@@ -73,6 +329,10 @@ function DetallePostulacion() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [demoActivaId, setDemoActivaId] = useState(null);
+  const [evaluacion, setEvaluacion] = useState(null);
+  const [loadingEvaluacion, setLoadingEvaluacion] = useState(true);
+  const [generandoEvaluacion, setGenerandoEvaluacion] = useState(false);
+  const [errorEvaluacion, setErrorEvaluacion] = useState("");
 
   useEffect(() => {
     let activo = true;
@@ -131,8 +391,147 @@ function DetallePostulacion() {
 
     return () => {
       activo = false;
-    };
+    }; 
   }, [postulacionId, navigate]);
+
+  useEffect(() => {
+    let activo = true;
+
+    const cargarEvaluacion = async () => {
+      const token = sessionStorage.getItem("access_token");
+
+      if (!token) {
+        navigate("/acceso", { replace: true });
+        return;
+      }
+
+      setLoadingEvaluacion(true);
+      setEvaluacion(null);
+      setErrorEvaluacion("");
+
+      try {
+        const response = await api.get(
+          `/postulaciones/${postulacionId}/viabilidad`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (activo) {
+          setEvaluacion(response.data);
+        }
+
+      } catch (err) {
+        if (!activo) return;
+
+        const status = err.response?.status;
+
+        if (status === 404) {
+          // Todavía no existe una evaluación.
+          setEvaluacion(null);
+
+        } else if (status === 401) {
+          sessionStorage.removeItem("access_token");
+          navigate("/acceso", { replace: true });
+
+        } else if (status === 403) {
+          setErrorEvaluacion(
+            "No tienes permisos para consultar esta evaluación."
+          );
+
+        } else {
+          setErrorEvaluacion(
+            "No fue posible recuperar el reporte de evaluación."
+          );
+        }
+
+      } finally {
+        if (activo) {
+          setLoadingEvaluacion(false);
+        }
+      }
+    };
+
+    cargarEvaluacion();
+
+    return () => {
+      activo = false;
+    };
+
+  }, [postulacionId, navigate]);
+
+  const generarEvaluacion = async () => {
+    const token = sessionStorage.getItem("access_token");
+
+    if (!token) {
+      navigate("/acceso", { replace: true });
+      return;
+    }
+
+    if (generandoEvaluacion) {
+      return;
+    }
+
+    setGenerandoEvaluacion(true);
+    setErrorEvaluacion("");
+
+    try {
+      const response = await api.post(
+        `/postulaciones/${postulacionId}/evaluacion`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.data?.viabilidad) {
+        throw new Error(
+          "El servidor no devolvió un reporte de evaluación válido."
+        );
+      }
+
+      setEvaluacion(response.data);
+
+    } catch (err) {
+      console.error(
+        "Error al generar evaluación:",
+        err
+      );
+
+      const status = err.response?.status;
+
+      if (status === 401) {
+        sessionStorage.removeItem("access_token");
+        navigate("/acceso", { replace: true });
+        return;
+      }
+
+      if (status === 403) {
+        setErrorEvaluacion(
+          "No tienes permisos para generar evaluaciones."
+        );
+
+      } else if (status === 404) {
+        setErrorEvaluacion(
+          "No se encontró la postulación solicitada."
+        );
+
+      } else {
+        setErrorEvaluacion(
+          err.response?.data?.detail ||
+          err.message ||
+          "No fue posible generar la evaluación."
+        );
+      }
+
+    } finally {
+      setGenerandoEvaluacion(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -165,6 +564,26 @@ function DetallePostulacion() {
 
   const pressKit = postulacion.press_kit || {};
   const demos = postulacion.demos || [];
+  const viabilidad = evaluacion?.viabilidad || {};
+
+  const dimensiones = viabilidad.dimensiones || {};
+
+  const aportes = viabilidad.aportes || {};
+
+  const fuentes = evaluacion?.fuentes || {};
+
+  const motivosNoEvaluable =
+    viabilidad.motivos_no_evaluable || [];
+
+  const dimensionesFaltantes =
+    viabilidad.dimensiones_faltantes || [];
+
+  const estadoEvaluacion =
+    viabilidad.estado || evaluacion?.estado;
+
+  const nivelRiesgo = viabilidad.nivel_riesgo;
+
+  const score = viabilidad.score;
 
   const spotifyUrl = obtenerUrlSegura(pressKit.spotify_url);
   const instagramUrl = obtenerUrlSegura(pressKit.instagram_url);
@@ -465,6 +884,283 @@ function DetallePostulacion() {
           </p>
         </section>
       )}
+
+      <section className="detalle-panel reporte-panel">
+
+        <div className="detalle-panel-header reporte-header">
+
+          <div>
+            <h2>Reporte de evaluación</h2>
+
+            <p>
+              Análisis de viabilidad de la postulación
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="reporte-boton"
+            onClick={generarEvaluacion}
+            disabled={generandoEvaluacion}
+          >
+            {generandoEvaluacion
+              ? "Generando evaluación..."
+              : evaluacion
+                ? "Generar nueva evaluación"
+                : "Generar evaluación"}
+          </button>
+
+        </div>
+
+        {loadingEvaluacion ? (
+
+          <div className="detalle-estado">
+            <p>Consultando último reporte de evaluación...</p>
+          </div>
+
+        ) : (
+
+          <>
+
+            {errorEvaluacion && (
+              <div className="reporte-mensaje-error" role="alert">
+                {errorEvaluacion}
+              </div>
+            )}
+
+            {!evaluacion ? (
+
+              <div className="reporte-sin-evaluacion">
+                <h3>No existe una evaluación registrada</h3>
+
+                <p>
+                  Genera una evaluación para analizar la viabilidad
+                  de esta postulación.
+                </p>
+              </div>
+
+            ) : (
+
+              <>
+
+                <div className="reporte-resumen">
+
+                  <div className="reporte-resumen-card">
+                    <span>Score de viabilidad</span>
+                    <strong className={obtenerClaseEstado(estadoEvaluacion)}>
+                      {obtenerTextoScore(score, estadoEvaluacion)}
+                    </strong>
+                  </div>
+
+                  <div className="reporte-resumen-card">
+                    <span>Nivel de riesgo</span>
+                    <strong
+                      className={`reporte-riesgo ${
+                        ["bajo", "medio", "alto"].includes(
+                          String(nivelRiesgo).toLowerCase()
+                        )
+                          ? `reporte-riesgo-${String(nivelRiesgo).toLowerCase()}`
+                          : "reporte-riesgo-sin-dato"
+                      }`}
+                    >
+                      {obtenerTextoRiesgo(nivelRiesgo, estadoEvaluacion)}
+                    </strong>
+                  </div>
+
+                  <div className="reporte-resumen-card">
+                    <span>Estado</span>
+                    <strong className={obtenerClaseEstado(estadoEvaluacion)}>
+                      {obtenerTextoEstado(estadoEvaluacion)}
+                    </strong>
+                  </div>
+
+                </div>
+
+                <div className="reporte-metadatos">
+
+                  <div className="reporte-meta-chip">
+                    <span className="reporte-meta-label">ID evaluación</span>
+                    <strong>{evaluacion.evaluacion_id || "No disponible"}</strong>
+                  </div>
+
+                  <div className="reporte-meta-chip">
+                    <span className="reporte-meta-label">Generado</span>
+                    <strong>{formatearFecha(evaluacion.fecha_generacion)}</strong>
+                  </div>
+
+                </div>
+
+                {estadoEvaluacion === "no_evaluable" && (
+
+                  <div className="reporte-advertencia reporte-no-evaluable">
+
+                    <h3>Evaluación no evaluable</h3>
+
+                    <p>
+                      No se dispone de información suficiente para
+                      calcular un resultado completo.
+                    </p>
+
+                    {dimensionesFaltantes.length > 0 && (
+                      <>
+                        <strong>Dimensiones faltantes</strong>
+
+                        <ul>
+                          {dimensionesFaltantes.map((dimension, index) => (
+                            <li key={index}>
+                              {formatearNombreDimension(dimension)}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+
+                    {motivosNoEvaluable.length > 0 && (
+                      <>
+                        <strong>Motivos</strong>
+
+                        <ul>
+                          {motivosNoEvaluable.map((motivo, index) => (
+                            <li key={index}>{motivo}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+
+                  </div>
+
+                )}
+
+                <div className="reporte-dimensiones">
+
+                  <h3>Dimensiones evaluadas</h3>
+
+                  <DimensionEvaluacion
+                    titulo="Q_audio"
+                    descripcion="Calidad técnica de las demos musicales."
+                    dimension={dimensiones.q_audio}
+                    clavePuntaje="q_audio"
+                  />
+
+                  <DimensionEvaluacion
+                    titulo="Q_streaming"
+                    descripcion="Audiencia y fidelidad de la presencia musical en plataformas."
+                    dimension={dimensiones.q_streaming}
+                    clavePuntaje="q_streaming"
+                  />
+
+                  <DimensionEvaluacion
+                    titulo="Q_RRSS"
+                    descripcion="Interacción y rendimiento de las redes sociales."
+                    dimension={dimensiones.q_rrss}
+                    clavePuntaje="q_rrss"
+                  />
+
+                  <DimensionEvaluacion
+                    titulo="Q_presskit"
+                    descripcion="Completitud y calidad de la información del artista."
+                    dimension={dimensiones.q_presskit}
+                    clavePuntaje="q_presskit"
+                  />
+
+                  <DimensionEvaluacion
+                    titulo="Q_consistencia"
+                    descripcion="Consistencia de identidad, fuentes y trazabilidad."
+                    dimension={dimensiones.q_consistencia}
+                    clavePuntaje="q_consistencia"
+                  />
+
+                </div>
+
+                {Object.keys(aportes).length > 0 && (
+
+                  <div className="reporte-aportes">
+
+                    <h3>Aportes al score general</h3>
+
+                    <div className="reporte-aportes-grid">
+
+                      {Object.entries(aportes).map(([clave, valor]) => (
+
+                        <div className="reporte-aporte" key={clave}>
+
+                          <span>{formatearEtiqueta(clave)}</span>
+
+                          <strong>
+                            {formatearValor(valor)} pts
+                          </strong>
+
+                        </div>
+
+                      ))}
+
+                    </div>
+
+                  </div>
+
+                )}
+
+                <div className="reporte-fuentes">
+
+                  <h3>Fuentes de información</h3>
+
+                  <div className="reporte-fuentes-grid">
+
+                    {Object.entries(fuentes).map(([nombre, fuente]) => (
+
+                      <article
+                        className="reporte-fuente"
+                        key={nombre}
+                      >
+
+                        <h4>
+                          {nombre === "lastfm"
+                            ? "Last.fm"
+                            : nombre.charAt(0).toUpperCase() + nombre.slice(1)}
+                        </h4>
+
+                        <span
+                          className={
+                            fuente.disponible
+                              ? "reporte-texto-ok"
+                              : "reporte-texto-error"
+                          }
+                        >
+                          {fuente.disponible
+                            ? "Disponible"
+                            : "No disponible"}
+                        </span>
+
+                        {fuente.identidad_confirmada !== undefined && (
+                          <p>
+                            Identidad:{" "}
+                            {fuente.identidad_confirmada
+                              ? "Confirmada"
+                              : "No confirmada"}
+                          </p>
+                        )}
+
+                        <p>
+                          Fecha: {formatearFecha(fuente.fecha_obtencion)}
+                        </p>
+
+                      </article>
+
+                    ))}
+
+                  </div>
+
+                </div>
+
+              </>
+
+            )}
+
+          </>
+
+        )}
+
+      </section>
 
       <footer className="detalle-footer">
         <span>
