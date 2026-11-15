@@ -577,3 +577,12 @@
   background: transparent;
   color: var(--muted);
 }
+.dashboard-admin-header {
+  display: flow-root;
+}
+
+.dashboard-admin-logout {
+  float: right;
+  width: auto;
+  margin: 0 0 16px 20px;
+}

@@ -1,12 +1,15 @@
+
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 UserRole = Literal["admin", "ar"]
 
 
 class UserCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str = Field(
         min_length=2,
         max_length=100
@@ -19,12 +22,10 @@ class UserCreate(BaseModel):
         max_length=128
     )
 
-    role: UserRole = "ar"
-
-    label_id: str | None = None
-
 
 class UserUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str | None = Field(
         default=None,
         min_length=2,
@@ -32,10 +33,6 @@ class UserUpdate(BaseModel):
     )
 
     email: EmailStr | None = None
-
-    role: UserRole | None = None
-
-    label_id: str | None = None
 
     is_active: bool | None = None
 

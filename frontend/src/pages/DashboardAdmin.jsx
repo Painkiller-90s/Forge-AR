@@ -1,6 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
 import AuditoriasPanel from "../components/AuditoriasPanel";
+import GestionUsuariosPanel from "../components/GestionUsuariosPanel";
 import "../styles/DashboardAR.css";
 
 function DashboardAdmin() {
@@ -14,8 +15,14 @@ function DashboardAdmin() {
   return (
     <main className="dashboard-ar-page">
       <section className="dashboard-content">
-
-        <header className="dashboard-header">
+        <header className="dashboard-header dashboard-admin-header">
+          <button
+            type="button"
+            className="dashboard-logout dashboard-admin-logout"
+            onClick={handleLogout}
+          >
+            Cerrar sesión
+          </button>
           <span className="dashboard-eyebrow">
             PANEL ADMINISTRADOR
           </span>
@@ -29,37 +36,8 @@ function DashboardAdmin() {
 
         <AuditoriasPanel />
 
-        <section className="dashboard-panel">
-          <div className="dashboard-panel-header">
-            <div>
-              <span className="dashboard-panel-label">
-                FORGE A&R
-              </span>
+        <GestionUsuariosPanel />
 
-              <h2>Panel administrativo</h2>
-            </div>
-          </div>
-
-          <p>
-            Has iniciado sesión con permisos de administrador.
-          </p>
-
-          <p>
-            Desde este panel puedes supervisar las acciones
-            críticas realizadas por los usuarios internos
-            y consultar el historial de actividad de tu sello.
-          </p>
-
-          <div style={{ maxWidth: "220px", marginTop: "24px" }}>
-            <button
-              type="button"
-              className="dashboard-logout"
-              onClick={handleLogout}
-            >
-              Cerrar sesión
-            </button>
-          </div>
-        </section>
 
       </section>
     </main>
