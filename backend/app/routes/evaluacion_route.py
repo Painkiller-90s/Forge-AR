@@ -14,6 +14,9 @@ from app.services.evaluacion_service import (
 from app.services.audit_service import (
     registrar_auditoria,
 )
+from app.utils.evaluacion_response import (
+    serializar_datos_utilizados,
+)
 
 
 router = APIRouter(
@@ -141,5 +144,7 @@ async def generar_reporte_evaluacion(
         "estado": reporte["estado"],
         "viabilidad": reporte["viabilidad"],
         "fuentes": reporte["fuentes"],
-        "datos_utilizados": reporte["datos_utilizados"],
+        "datos_utilizados": serializar_datos_utilizados(
+            reporte["datos_utilizados"]
+        ),
     }

@@ -4,6 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.config.database import database
 from app.routes.auth_route import get_current_user
+from app.utils.evaluacion_response import (
+    serializar_datos_utilizados,
+)
 
 
 router = APIRouter(
@@ -56,9 +59,21 @@ async def consultar_viabilidad_postulacion(
             detail="No existe una evaluación generada para esta postulación.",
         )
 
-    # 4. Devolver el resultado almacenado.
+    # 4. Preparar información de viabilidad.
+    viabilidad = reporte.get("viabilidad") or {}
+
+    # 5. Devolver el reporte con trazabilidad.
     return {
+        "evaluacion_id": str(reporte["_id"]),
         "postulacion_id": reporte["postulacion_id"],
-        "viabilidad": reporte["viabilidad"],
-        "fuentes": reporte["fuentes"],
+        "fecha_generacion": reporte.get("fecha_generacion"),
+        "estado": (
+            reporte.get("estado")
+            or viabilidad.get("estado")
+        ),
+        "viabilidad": viabilidad,
+        "fuentes": reporte.get("fuentes") or {},
+        "datos_utilizados": serializar_datos_utilizados(
+            reporte.get("datos_utilizados")
+        ),
     }
