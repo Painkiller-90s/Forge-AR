@@ -20,7 +20,7 @@ from fastapi import (
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 
-from app.config.database import database
+from app.config.database import client, database
 from app.models.postulacion_model import postulacion_document
 from app.routes.auth_route import get_current_user
 from app.schemas.postulacion_schema import (
@@ -29,6 +29,8 @@ from app.schemas.postulacion_schema import (
     PostulacionCreate,
     PostulacionResponse,
     DemoPlaybackTokenResponse,
+    CambiarEstadoPostulacionRequest,
+    CambioEstadoPostulacionResponse,
 )
 from app.services.audio_validation_service import validar_audio
 from app.services.audit_service import registrar_auditoria
@@ -37,13 +39,31 @@ from app.services.generos_service import (
     normalizar_generos_sello,
     obtener_generos_sello,
 )
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from app.utils.security import (
     create_access_token,
     decode_access_token,
 )
 
 router = APIRouter(prefix="/postulaciones", tags=["Postulaciones"])
+
+# =====================================================
+# HU013 - FLUJO DE ESTADOS DE POSTULACIÓN
+# =====================================================
+
+TRANSICIONES_ESTADO_POSTULACION = {
+    "recibida": {"en_revision"},
+    "en_revision": {"seleccionada", "descartada"},
+    "seleccionada": set(),
+    "descartada": set(),
+}
+
+ETIQUETAS_ESTADO_POSTULACION = {
+    "recibida": "Recibida",
+    "en_revision": "En revisión",
+    "seleccionada": "Seleccionada",
+    "descartada": "Descartada",
+}
 
 
 def serialize_postulacion(postulacion: dict) -> dict:
@@ -69,6 +89,200 @@ def serialize_postulacion(postulacion: dict) -> dict:
         ],
         "estado": postulacion["estado"],
     }
+
+
+# =====================================================
+# HU013 - CAMBIAR ESTADO DE POSTULACIÓN
+# =====================================================
+
+@router.patch(
+    "/{postulacion_id}/estado",
+    response_model=CambioEstadoPostulacionResponse,
+)
+async def cambiar_estado_postulacion(
+    postulacion_id: str,
+    datos: CambiarEstadoPostulacionRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Permite modificar el estado de una postulación
+    siguiendo el flujo secuencial definido en HU013.
+
+    El cambio y su registro de auditoría se realizan
+    dentro de una misma transacción MongoDB.
+    """
+
+    # 1. Validar rol A&R.
+    if current_user.get("role") != "ar":
+        raise HTTPException(
+            status_code=403,
+            detail="Se requieren permisos A&R.",
+        )
+
+    # 2. Validar sello asignado.
+    sello_id = current_user.get("label_id")
+
+    if not isinstance(sello_id, str) or not sello_id.strip():
+        raise HTTPException(
+            status_code=403,
+            detail="El usuario no tiene un sello asignado.",
+        )
+
+    sello_id = sello_id.strip()
+
+    # 3. Validar identificador.
+    if not ObjectId.is_valid(postulacion_id):
+        raise HTTPException(
+            status_code=400,
+            detail="ID de postulación inválido.",
+        )
+
+    postulacion_id_obj = ObjectId(postulacion_id)
+    estado_nuevo = datos.estado
+    fecha_cambio = datetime.now(timezone.utc)
+
+    filtro_postulacion = {
+        "_id": postulacion_id_obj,
+        "sello_id": sello_id,
+    }
+
+    # 4. Operación transaccional.
+    async def actualizar_estado_y_auditoria(session):
+
+        postulacion = await database.postulaciones.find_one(
+            filtro_postulacion
+        )
+
+        if not postulacion:
+            raise HTTPException(
+                status_code=404,
+                detail="Postulación no encontrada.",
+            )
+
+        estado_anterior = postulacion.get("estado")
+
+        # Comprobar que el estado actual sea válido.
+        transiciones_permitidas = (
+            TRANSICIONES_ESTADO_POSTULACION.get(
+                estado_anterior
+            )
+        )
+
+        if transiciones_permitidas is None:
+            raise HTTPException(
+                status_code=409,
+                detail="La postulación tiene un estado actual inválido.",
+            )
+
+        # Comprobar que la transición esté permitida.
+        if estado_nuevo not in transiciones_permitidas:
+
+            nombre_anterior = (
+                ETIQUETAS_ESTADO_POSTULACION.get(
+                    estado_anterior,
+                    estado_anterior,
+                )
+            )
+
+            nombre_nuevo = (
+                ETIQUETAS_ESTADO_POSTULACION.get(
+                    estado_nuevo,
+                    estado_nuevo,
+                )
+            )
+
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    f"No se permite cambiar el estado "
+                    f"de {nombre_anterior} a {nombre_nuevo}."
+                ),
+            )
+
+        # Actualización con control de concurrencia.
+        resultado = await database.postulaciones.update_one(
+            {
+                **filtro_postulacion,
+                "estado": estado_anterior,
+            },
+            {
+                "$set": {
+                    "estado": estado_nuevo,
+                    "updated_at": fecha_cambio,
+                }
+            },
+        )
+
+        if resultado.modified_count != 1:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "La postulación fue modificada por otra operación. "
+                    "Actualiza e inténtalo nuevamente."
+                ),
+            )
+
+        # Diferenciar los cambios de estado de las decisiones finales.
+        es_decision_final = estado_nuevo in {
+            "seleccionada",
+            "descartada",
+        }
+
+        accion = (
+            "DECISION_FINAL_POSTULACION"
+            if es_decision_final
+            else "CAMBIO_ESTADO_POSTULACION"
+        )
+
+        # Registrar auditoría dentro de la misma transacción.
+        await registrar_auditoria(
+            usuario=current_user,
+            sello_id=sello_id,
+            postulacion_id=postulacion_id,
+            recurso="postulacion",
+            recurso_id=postulacion_id,
+            accion=accion,
+            metodo="cambiar_estado",
+            estado_anterior=estado_anterior,
+            estado_nuevo=estado_nuevo,
+            fecha_evento=fecha_cambio,
+        )
+
+        mensajes = {
+            "en_revision": "La postulación pasó a En revisión.",
+            "seleccionada": "La postulación fue seleccionada correctamente.",
+            "descartada": "La postulación fue descartada correctamente.",
+        }
+
+        return {
+            "postulacion_id": postulacion_id,
+            "estado_anterior": estado_anterior,
+            "estado_nuevo": estado_nuevo,
+            "fecha_actualizacion": fecha_cambio,
+            "mensaje": mensajes[estado_nuevo],
+        }
+
+    # 5. Ejecutar la transacción.
+    try:
+        async with client.start_session().bind() as session:
+
+            respuesta = await session.with_transaction(
+                actualizar_estado_y_auditoria
+            )
+
+    except HTTPException:
+        raise
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "No fue posible actualizar el estado "
+                "y registrar su auditoría."
+            ),
+        ) from exc
+
+    return respuesta
 
 
 async def limpiar_demos(demos: list[dict]) -> None:
