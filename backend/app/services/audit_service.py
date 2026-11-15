@@ -25,6 +25,7 @@ async def registrar_auditoria(
     session.bind(), la inserción participa en esa transacción.
     """
 
+
     auditoria = {
         "usuario_id": str(usuario["_id"]),
         "rol": usuario["role"],
@@ -36,6 +37,11 @@ async def registrar_auditoria(
         "fecha": fecha_evento or datetime.now(timezone.utc),
     }
 
+    if (estado_anterior is None) != (estado_nuevo is None):
+        raise ValueError(
+            "Los estados anterior y nuevo deben proporcionarse juntos."
+        )
+    
     if metodo is not None:
         auditoria["metodo"] = metodo
 

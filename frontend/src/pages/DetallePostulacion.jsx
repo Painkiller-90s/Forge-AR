@@ -19,6 +19,17 @@ function formatearFecha(fecha) {
   }).format(valor);
 }
 
+const nombresEstadoPostulacion = {
+  recibida: "Recibida",
+  en_revision: "En revisión",
+  seleccionada: "Seleccionada",
+  descartada: "Descartada",
+};
+
+function formatearEstadoPostulacion(estado) {
+  return nombresEstadoPostulacion[estado] || "Sin estado";
+}
+
 function formatearTamano(bytes) {
   if (typeof bytes !== "number") return "No disponible";
 
@@ -333,6 +344,10 @@ function DetallePostulacion() {
   const [loadingEvaluacion, setLoadingEvaluacion] = useState(true);
   const [generandoEvaluacion, setGenerandoEvaluacion] = useState(false);
   const [errorEvaluacion, setErrorEvaluacion] = useState("");
+  // HU013 - Gestión del estado de postulación
+  const [cambiandoEstado, setCambiandoEstado] = useState(false);
+  const [errorEstado, setErrorEstado] = useState("");
+  const [mensajeEstado, setMensajeEstado] = useState("");
 
   useEffect(() => {
     let activo = true;
@@ -533,6 +548,131 @@ function DetallePostulacion() {
     }
   };
 
+  // =====================================================
+  // HU013 - CAMBIAR ESTADO DE POSTULACIÓN
+  // =====================================================
+
+  const cambiarEstado = async (estadoNuevo) => {
+    const token = sessionStorage.getItem("access_token");
+
+    if (!token) {
+      navigate("/acceso", { replace: true });
+      return;
+    }
+
+    if (cambiandoEstado) {
+      return;
+    }
+
+    // Validar transiciones desde el frontend.
+    // El backend mantiene la validación definitiva.
+    const transicionesPermitidas = {
+      recibida: ["en_revision"],
+      en_revision: ["seleccionada", "descartada"],
+      seleccionada: [],
+      descartada: [],
+    };
+
+    const estadoActual = postulacion?.estado;
+
+    if (
+      !transicionesPermitidas[estadoActual]?.includes(estadoNuevo)
+    ) {
+      setErrorEstado(
+        "La transición de estado solicitada no está permitida."
+      );
+      return;
+    }
+
+    // Solicitar confirmación para decisiones finales.
+    if (estadoNuevo === "seleccionada") {
+      const confirmar = window.confirm(
+        "¿Confirmas que deseas seleccionar esta postulación?"
+      );
+
+      if (!confirmar) return;
+    }
+
+    if (estadoNuevo === "descartada") {
+      const confirmar = window.confirm(
+        "¿Confirmas que deseas descartar esta postulación? Esta decisión es definitiva."
+      );
+
+      if (!confirmar) return;
+    }
+
+    setCambiandoEstado(true);
+    setErrorEstado("");
+    setMensajeEstado("");
+
+    try {
+      const response = await api.patch(
+        `/postulaciones/${postulacionId}/estado`,
+        {
+          estado: estadoNuevo,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Actualizar la información visible sin recargar la página.
+      setPostulacion((actual) => ({
+        ...actual,
+        estado: response.data.estado_nuevo,
+        updated_at:
+          response.data.fecha_actualizacion || actual.updated_at,
+      }));
+
+      setMensajeEstado(
+        response.data.mensaje ||
+        "El estado de la postulación fue actualizado correctamente."
+      );
+
+    } catch (err) {
+      console.error("Error al cambiar estado:", err);
+
+      const status = err.response?.status;
+      const detalle = err.response?.data?.detail;
+
+      if (status === 401) {
+        sessionStorage.removeItem("access_token");
+        navigate("/acceso", { replace: true });
+        return;
+      }
+
+      if (status === 403) {
+        setErrorEstado(
+          "No tienes permisos para modificar esta postulación."
+        );
+
+      } else if (status === 404) {
+        setErrorEstado(
+          "No se encontró la postulación solicitada."
+        );
+
+      } else if (status === 409) {
+        setErrorEstado(
+          typeof detalle === "string"
+            ? detalle
+            : "La postulación fue modificada. Actualiza la información e inténtalo nuevamente."
+        );
+
+      } else {
+        setErrorEstado(
+          typeof detalle === "string"
+            ? detalle
+            : "No fue posible actualizar el estado de la postulación."
+        );
+      }
+
+    } finally {
+      setCambiandoEstado(false);
+    }
+  };
+
   if (loading) {
     return (
       <section className="detalle-postulacion">
@@ -616,10 +756,145 @@ function DetallePostulacion() {
           </p>
         </div>
 
-        <span className="detalle-estado-badge">
-          {postulacion.estado}
+        <span
+          className={`detalle-estado-badge detalle-estado-badge--${postulacion.estado}`}
+        >
+          {formatearEstadoPostulacion(postulacion.estado)}
         </span>
       </header>
+
+      {/* =========================================
+          HU013 - GESTIÓN DEL ESTADO
+      ========================================= */}
+
+      <section className="detalle-panel detalle-gestion-estado">
+
+        <div className="detalle-panel-header">
+          <div>
+            <h2>Gestión de postulación</h2>
+
+            <p>
+              Administra el proceso de revisión y registra
+              la decisión correspondiente.
+            </p>
+          </div>
+        </div>
+
+        {errorEstado && (
+          <div
+            className="detalle-gestion-mensaje detalle-gestion-error"
+            role="alert"
+          >
+            {errorEstado}
+          </div>
+        )}
+
+        {mensajeEstado && (
+          <div
+            className={`detalle-gestion-mensaje ${postulacion.estado === "descartada" ? "detalle-gestion-descartada" : "detalle-gestion-exito"}`}
+            role="status"
+          >
+            {mensajeEstado}
+          </div>
+        )}
+
+        <div className="detalle-gestion-contenido">
+
+          {/* ESTADO RECIBIDA */}
+
+          {postulacion.estado === "recibida" && (
+            <>
+              <p>
+                Esta postulación fue recibida correctamente.
+                Para comenzar su evaluación, inicia formalmente
+                el proceso de revisión.
+              </p>
+
+              <button
+                type="button"
+                className="detalle-accion-boton detalle-accion-principal"
+                onClick={() => cambiarEstado("en_revision")}
+                disabled={cambiandoEstado}
+              >
+                {cambiandoEstado
+                  ? "Actualizando..."
+                  : "Comenzar revisión"}
+              </button>
+            </>
+          )}
+
+          {/* ESTADO EN REVISIÓN */}
+
+          {postulacion.estado === "en_revision" && (
+            <>
+              <p>
+                La postulación se encuentra en revisión.
+                Una vez finalizado el análisis, registra
+                la decisión del A&R.
+              </p>
+
+              <div className="detalle-gestion-acciones">
+
+                <button
+                  type="button"
+                  className="detalle-accion-boton detalle-accion-seleccionar"
+                  onClick={() => cambiarEstado("seleccionada")}
+                  disabled={cambiandoEstado}
+                >
+                  {cambiandoEstado
+                    ? "Actualizando..."
+                    : "Seleccionar"}
+                </button>
+
+                <button
+                  type="button"
+                  className="detalle-accion-boton detalle-accion-descartar"
+                  onClick={() => cambiarEstado("descartada")}
+                  disabled={cambiandoEstado}
+                >
+                  {cambiandoEstado
+                    ? "Actualizando..."
+                    : "Descartar"}
+                </button>
+
+              </div>
+            </>
+          )}
+
+          {/* DECISIONES FINALES */}
+
+          {["seleccionada", "descartada"].includes(
+            postulacion.estado
+          ) && (
+            <div className="detalle-gestion-final">
+              <strong>
+                {postulacion.estado === "seleccionada"
+                  ? "Postulación seleccionada"
+                  : "Postulación descartada"}
+              </strong>
+
+              <p>
+                La decisión final ya fue registrada.
+                El flujo de gestión de esta postulación ha finalizado.
+              </p>
+            </div>
+          )}
+
+          {/* ESTADO NO RECONOCIDO */}
+
+          {!Object.prototype.hasOwnProperty.call(
+            nombresEstadoPostulacion,
+            postulacion.estado
+          ) && (
+            <div className="detalle-gestion-mensaje detalle-gestion-error">
+              El estado actual de esta postulación no es reconocido.
+              No es posible realizar modificaciones.
+            </div>
+          )}
+
+        </div>
+
+      </section>
 
       <section className="detalle-panel">
 

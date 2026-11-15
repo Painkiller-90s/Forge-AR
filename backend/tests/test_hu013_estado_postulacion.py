@@ -175,7 +175,8 @@ class TestHU013EstadoPostulacion(
             recurso="postulacion",
             recurso_id=POSTULACION_ID,
             accion="CAMBIO_ESTADO_POSTULACION",
-            metodo="patch_estado",
+            metodo="cambiar_estado",
+            fecha_evento=ANY,
             estado_anterior="recibida",
             estado_nuevo="en_revision",
         )
@@ -211,9 +212,10 @@ class TestHU013EstadoPostulacion(
             recurso="postulacion",
             recurso_id=POSTULACION_ID,
             accion="DECISION_FINAL_POSTULACION",
-            metodo="patch_estado",
+            metodo="cambiar_estado",
             estado_anterior="en_revision",
             estado_nuevo="seleccionada",
+            fecha_evento=ANY,
         )
 
     # --------------------------------------------------
@@ -247,9 +249,10 @@ class TestHU013EstadoPostulacion(
             recurso="postulacion",
             recurso_id=POSTULACION_ID,
             accion="DECISION_FINAL_POSTULACION",
-            metodo="patch_estado",
+            metodo="cambiar_estado",
             estado_anterior="en_revision",
             estado_nuevo="descartada",
+            fecha_evento=ANY,
         )
 
     # --------------------------------------------------

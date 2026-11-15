@@ -198,31 +198,7 @@ class DemoPlaybackTokenResponse(BaseModel):
     token_type: str = "Bearer"
     expires_in: int
 
-# =========================
-# HU013 - CAMBIO DE ESTADO
-# =========================
 
-class CambiarEstadoPostulacionRequest(BaseModel):
-
-    estado: Literal[
-        "recibida",
-        "en_revision",
-        "seleccionada",
-        "descartada",
-    ]
-
-
-class CambioEstadoPostulacionResponse(BaseModel):
-
-    postulacion_id: str
-
-    estado_anterior: str
-
-    estado_nuevo: str
-
-    fecha_actualizacion: datetime
-
-    mensaje: str
 
 
 # =========================

@@ -705,3 +705,161 @@
     flex-direction: column;
   }
 }
+
+
+/* =========================================
+   HU013 - GESTIÓN DE ESTADOS
+========================================= */
+
+.detalle-estado-badge {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-weight: 600;
+}
+
+.detalle-estado-badge--recibida {
+  color: #d5d5d5;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.detalle-estado-badge--en_revision {
+  color: #e6b94f;
+  background: rgba(230, 185, 79, 0.1);
+  border-color: rgba(230, 185, 79, 0.3);
+}
+
+.detalle-estado-badge--seleccionada {
+  color: #43c78a;
+  background: rgba(67, 199, 138, 0.1);
+  border-color: rgba(67, 199, 138, 0.3);
+}
+
+.detalle-estado-badge--descartada {
+  color: #e36b73;
+  background: rgba(227, 107, 115, 0.1);
+  border-color: rgba(227, 107, 115, 0.3);
+}
+
+.detalle-gestion-estado {
+  border-color: rgba(189, 73, 64, 0.25);
+}
+
+.detalle-gestion-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.detalle-gestion-contenido > p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.detalle-gestion-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.detalle-accion-boton {
+  padding: 11px 19px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: white;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.detalle-accion-boton:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.detalle-accion-principal {
+  align-self: flex-start;
+  background: #a83c35;
+  border-color: rgba(189, 73, 64, 0.5);
+}
+
+.detalle-accion-principal:hover:not(:disabled) {
+  background: #bd4940;
+}
+
+.detalle-accion-seleccionar {
+  background: rgba(67, 199, 138, 0.12);
+  border-color: rgba(67, 199, 138, 0.4);
+  color: #65d9a2;
+}
+
+.detalle-accion-seleccionar:hover:not(:disabled) {
+  background: rgba(67, 199, 138, 0.22);
+}
+
+.detalle-accion-descartar {
+  background: rgba(227, 107, 115, 0.1);
+  border-color: rgba(227, 107, 115, 0.4);
+  color: #ed858b;
+}
+
+.detalle-accion-descartar:hover:not(:disabled) {
+  background: rgba(227, 107, 115, 0.2);
+}
+
+.detalle-gestion-mensaje {
+  padding: 13px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.detalle-gestion-error,
+.detalle-gestion-descartada {
+  color: #eeaaa4;
+  background: rgba(227, 107, 115, 0.08);
+  border: 1px solid rgba(227, 107, 115, 0.25);
+}
+
+.detalle-gestion-exito {
+  color: #65d9a2;
+  background: rgba(67, 199, 138, 0.08);
+  border: 1px solid rgba(67, 199, 138, 0.25);
+}
+
+.detalle-gestion-final {
+  padding: 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detalle-gestion-final strong {
+  font-size: 0.95rem;
+}
+
+.detalle-gestion-final p {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 650px) {
+  .detalle-gestion-acciones {
+    flex-direction: column;
+  }
+
+  .detalle-accion-boton {
+    width: 100%;
+  }
+
+  .detalle-accion-principal {
+    align-self: stretch;
+  }
+}
