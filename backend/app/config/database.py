@@ -35,6 +35,26 @@ async def connect_to_mongo():
         name="uq_metricas_postulacion_sello_plataforma",
     )
 
+    # Índice para consultar auditorías por sello y fecha.
+    await database.auditorias.create_index(
+        [
+            ("sello_id", 1),
+            ("fecha", -1),
+            ("_id", -1)
+        ],
+        name="idx_auditorias_sello_fecha"
+    )
+
+    # Índice para filtrar auditorías por categoría.
+    await database.auditorias.create_index(
+        [
+            ("sello_id", 1),
+            ("accion", 1),
+            ("fecha", -1)
+        ],
+        name="idx_auditorias_sello_accion_fecha"
+    )
+
     print("MongoDB conectado correctamente")
     print("Índices de base de datos verificados")
 

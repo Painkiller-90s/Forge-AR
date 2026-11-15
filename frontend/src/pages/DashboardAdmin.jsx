@@ -45,9 +45,9 @@ function DashboardAdmin() {
           </p>
 
           <p>
-            Las funciones de administración y auditoría
-            se integrarán en sus historias de usuario
-            correspondientes.
+            Desde este panel puedes supervisar las acciones
+            críticas realizadas por los usuarios internos
+            y consultar el historial de actividad de tu sello.
           </p>
 
           <div style={{ maxWidth: "220px", marginTop: "24px" }}>

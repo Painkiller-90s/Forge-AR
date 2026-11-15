@@ -1,0 +1,249 @@
+
+.audit-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.audit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.audit-header h2 {
+  margin: 0;
+}
+
+.audit-header p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.audit-total {
+  min-width: 145px;
+  padding: 14px 18px;
+  border: 1px solid rgba(183, 53, 45, 0.25);
+  border-radius: 12px;
+  background: rgba(183, 53, 45, 0.07);
+}
+
+.audit-total span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.audit-total strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.8rem;
+}
+
+.audit-category-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(165px, 1fr)
+  );
+  gap: 12px;
+}
+
+.audit-category-card {
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+
+  padding: 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text);
+
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.audit-category-card:hover {
+  border-color: rgba(183, 53, 45, 0.35);
+  background: rgba(183, 53, 45, 0.06);
+  transform: translateY(-2px);
+}
+
+.audit-category-card.active {
+  border-color: rgba(183, 53, 45, 0.65);
+  background: rgba(183, 53, 45, 0.12);
+}
+
+.audit-category-card span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.audit-category-card strong {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.audit-category-card small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.audit-records {
+  min-width: 0;
+}
+
+.audit-records-header {
+  margin-bottom: 18px;
+}
+
+.audit-records-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.audit-records-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.audit-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+}
+
+.audit-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.audit-table th,
+.audit-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+}
+
+.audit-table th {
+  color: var(--muted);
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+
+.audit-table td {
+  font-size: 0.78rem;
+}
+
+.audit-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.audit-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.audit-id {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.audit-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 18px;
+}
+
+.audit-pagination > span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.audit-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.audit-pagination-controls button {
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.audit-pagination-controls button:hover:not(:disabled) {
+  border-color: rgba(183, 53, 45, 0.5);
+}
+
+.audit-pagination-controls button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.audit-pagination-controls span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.audit-error {
+  color: #ff7777;
+}
+
+.audit-empty {
+  padding: 25px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 650px) {
+  .audit-header {
+    flex-direction: column;
+  }
+
+  .audit-total {
+    width: 100%;
+  }
+
+  .audit-category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .audit-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .audit-pagination-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
