@@ -7,13 +7,6 @@ function DashboardSidebar({
   activeView,
   onNavigate,
 }) {
-  const menuItems = [
-    { id: "resumen", label: "Resumen", icon: "◫" },
-    { id: "postulaciones", label: "Postulaciones", icon: "♫" },
-    { id: "analisis", label: "Análisis", icon: "◇", disabled: true },
-    { id: "reportes", label: "Reportes", icon: "▤", disabled: true },
-  ];
-
   return (
     <aside className="dashboard-sidebar">
 
@@ -31,23 +24,19 @@ function DashboardSidebar({
       </div>
 
       <nav className="dashboard-nav">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            disabled={item.disabled}
-            onClick={() => onNavigate(item.id)}
-            className={`dashboard-nav-item ${
-              activeView === item.id ? "active" : ""
-            }`}
-          >
-            <span className="dashboard-nav-icon">
-              {item.icon}
-            </span>
+        <button
+          type="button"
+          onClick={() => onNavigate("postulaciones")}
+          className={`dashboard-nav-item ${
+            activeView === "postulaciones" ? "active" : ""
+          }`}
+        >
+          <span className="dashboard-nav-icon">
+            ♫
+          </span>
 
-            {item.label}
-          </button>
-        ))}
+          Postulaciones
+        </button>
       </nav>
 
       <div className="dashboard-sidebar-bottom">

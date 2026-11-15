@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 
 import Navbar from "./components/NavBar";
@@ -54,7 +55,10 @@ function AppContent() {
           path="/dashboard"
           element={
             <ProtectedRoute requiredRole="ar">
-              <DashboardAR />
+              <Navigate
+                to="/dashboard/postulaciones"
+                replace
+              />
             </ProtectedRoute>
           }
         />

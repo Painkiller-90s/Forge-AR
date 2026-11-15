@@ -863,3 +863,99 @@
     align-self: stretch;
   }
 }
+
+
+/* =========================================
+   BARRA DE PROGRESO - GENERACIÓN HU009
+========================================= */
+
+.reporte-progreso {
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid rgba(189, 73, 64, 0.3);
+  border-radius: 10px;
+  background: rgba(189, 73, 64, 0.07);
+}
+
+.reporte-progreso-contenido {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.reporte-progreso-spinner {
+  flex-shrink: 0;
+  width: 19px;
+  height: 19px;
+  margin-top: 2px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-top-color: #bd4940;
+  border-radius: 50%;
+  animation: reporte-giro 0.8s linear infinite;
+}
+
+.reporte-progreso-contenido strong {
+  display: block;
+  font-size: 0.9rem;
+  color: #f2f2f2;
+}
+
+.reporte-progreso-contenido p {
+  margin: 7px 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.reporte-progreso-barra {
+  width: 100%;
+  height: 7px;
+  margin-top: 19px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.reporte-progreso-barra span {
+  display: block;
+  width: 35%;
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(
+    90deg,
+    #8e302a,
+    #d35d4d
+  );
+  animation: reporte-desplazamiento 1.5s ease-in-out infinite;
+}
+
+@keyframes reporte-giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes reporte-desplazamiento {
+  from {
+    transform: translateX(-120%);
+  }
+
+  to {
+    transform: translateX(320%);
+  }
+}
+
+/* Respeto por usuarios que reducen las animaciones */
+
+@media (prefers-reduced-motion: reduce) {
+  .reporte-progreso-spinner {
+    animation: none;
+  }
+
+  .reporte-progreso-barra span {
+    animation: none;
+    width: 100%;
+    opacity: 0.7;
+  }
+}
+

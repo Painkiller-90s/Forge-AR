@@ -16,9 +16,6 @@ function DashboardAR() {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  const esBandeja =
-    location.pathname === "/dashboard/postulaciones";
-
   const esDetallePostulacion =
     location.pathname.startsWith("/dashboard/postulaciones/");
 
@@ -29,7 +26,7 @@ function DashboardAR() {
       const token = sessionStorage.getItem("access_token");
 
       if (!token) {
-        navigate("/acceso");
+        navigate("/acceso", { replace: true });
         return;
       }
 
@@ -41,7 +38,7 @@ function DashboardAR() {
         });
 
         if (response.data.role !== "ar") {
-          navigate("/admin");
+          navigate("/admin", { replace: true });
           return;
         }
 
@@ -54,7 +51,7 @@ function DashboardAR() {
 
         sessionStorage.removeItem("access_token");
 
-        navigate("/acceso");
+        navigate("/acceso", { replace: true });
 
       } finally {
         if (activo) {
@@ -73,14 +70,10 @@ function DashboardAR() {
 
   const handleLogout = () => {
     sessionStorage.removeItem("access_token");
-    navigate("/acceso");
+    navigate("/acceso", { replace: true });
   };
 
   const handleNavigate = (view) => {
-    if (view === "resumen") {
-      navigate("/dashboard");
-    }
-
     if (view === "postulaciones") {
       navigate("/dashboard/postulaciones");
     }
@@ -97,12 +90,6 @@ function DashboardAR() {
     );
   }
 
-  const stats = [
-    { label: "Postulaciones", value: 0 },
-    { label: "Pendientes", value: 0 },
-    { label: "Analizadas", value: 0 },
-  ];
-
   return (
     <main className="dashboard-ar-page">
 
@@ -111,98 +98,16 @@ function DashboardAR() {
         <DashboardSidebar
           user={user}
           onLogout={handleLogout}
-          activeView={
-            esBandeja || esDetallePostulacion
-              ? "postulaciones"
-              : "resumen"
-          }
+          activeView="postulaciones"
           onNavigate={handleNavigate}
         />
 
         <section className="dashboard-content">
 
-          {esBandeja ? (
-
-            <BandejaPostulaciones />
-
-          ) : esDetallePostulacion ? (
-
+          {esDetallePostulacion ? (
             <DetallePostulacion />
-
           ) : (
-
-            <>
-              <header className="dashboard-header">
-
-                <span className="dashboard-eyebrow">
-                  PANEL A&R
-                </span>
-
-                <h1>Resumen</h1>
-
-                <p>
-                  Revisa y gestiona las postulaciones recibidas
-                  por tu sello.
-                </p>
-
-              </header>
-
-              <section className="dashboard-stats">
-
-                {stats.map((stat) => (
-                  <article
-                    key={stat.label}
-                    className="dashboard-stat-card"
-                  >
-                    <span>{stat.label}</span>
-                    <strong>{stat.value}</strong>
-                  </article>
-                ))}
-
-              </section>
-
-              <section className="dashboard-panel">
-
-                <div className="dashboard-panel-header">
-
-                  <div>
-                    <span className="dashboard-panel-label">
-                      RECEPCIÓN
-                    </span>
-
-                    <h2>Postulaciones recientes</h2>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="dashboard-text-button"
-                    onClick={() =>
-                      navigate("/dashboard/postulaciones")
-                    }
-                  >
-                    Ver todas
-                  </button>
-
-                </div>
-
-                <div className="dashboard-empty-state">
-
-                  <div className="dashboard-empty-icon">
-                    ♫
-                  </div>
-
-                  <h3>Aún no hay postulaciones</h3>
-
-                  <p>
-                    Las candidaturas enviadas mediante el enlace
-                    de tu sello aparecerán aquí.
-                  </p>
-
-                </div>
-
-              </section>
-            </>
-
+            <BandejaPostulaciones />
           )}
 
         </section>

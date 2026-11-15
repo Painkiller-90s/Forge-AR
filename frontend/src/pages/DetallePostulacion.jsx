@@ -1187,6 +1187,46 @@ function DetallePostulacion() {
 
         </div>
 
+
+        {generandoEvaluacion && (
+          <div
+            className="reporte-progreso"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="reporte-progreso-contenido">
+
+              <span
+                className="reporte-progreso-spinner"
+                aria-hidden="true"
+              />
+
+              <div>
+                <strong>Generando evaluación del artista...</strong>
+
+                <p>
+                  Consultando fuentes disponibles y calculando indicadores.
+                  {evaluacion &&
+                    " El reporte anterior seguirá visible mientras termina el proceso."}
+                </p>
+              </div>
+
+            </div>
+
+            <div
+              className="reporte-progreso-barra"
+              role="progressbar"
+              aria-label="Generación de evaluación"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuetext="En progreso"
+            >
+              <span />
+            </div>
+          </div>
+        )}
+
+
         {loadingEvaluacion ? (
 
           <div className="detalle-estado">
@@ -1203,18 +1243,24 @@ function DetallePostulacion() {
               </div>
             )}
 
+
             {!evaluacion ? (
 
-              <div className="reporte-sin-evaluacion">
-                <h3>No existe una evaluación registrada</h3>
+              generandoEvaluacion ? null : (
 
-                <p>
-                  Genera una evaluación para analizar la viabilidad
-                  de esta postulación.
-                </p>
-              </div>
+                <div className="reporte-sin-evaluacion">
+                  <h3>No existe una evaluación registrada</h3>
+
+                  <p>
+                    Genera una evaluación para analizar la viabilidad
+                    de esta postulación.
+                  </p>
+                </div>
+
+              )
 
             ) : (
+
 
               <>
 
