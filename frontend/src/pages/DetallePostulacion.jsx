@@ -1104,27 +1104,6 @@ function DetallePostulacion() {
                     />
                   </div>
 
-                  <div className="detalle-validacion">
-                    <div>
-                      <span>Validación técnica</span>
-
-                      <strong>
-                        {validacion.valido === true
-                          ? "Aprobada"
-                          : validacion.valido === false
-                            ? "Rechazada"
-                            : "Sin información"}
-                      </strong>
-                    </div>
-
-                    {validacion.q_audio !== undefined && (
-                      <div>
-                        <span>Q_audio</span>
-                        <strong>{validacion.q_audio}/100</strong>
-                      </div>
-                    )}
-                  </div>
-
                   {validacion.motivos_rechazo?.length > 0 && (
                     <div className="detalle-rechazos">
                       <strong>Motivos de rechazo</strong>
